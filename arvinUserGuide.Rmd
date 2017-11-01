@@ -1,0 +1,38 @@
+---
+title: "ARVIN : Identifying Risk Noncoding Variants Using Disease-relevant Gene Regulatory Networks"
+author: "Long Gao, Yasin Uzun, Kai Tan"
+date: "October 31, 2017"
+output: 
+  pdf_document:
+    toc: true
+    toc_depth: 4
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1 Introcution
+
+Identifying causalnoncoding variants remains a daunting task. Becausenoncoding variantsexert their effectsin the context of a gene regulatory network (GRN), we hypothesize that explicit use of disease-relevant GRNcan significantly improve the inference accuracy of noncoding risk variants. We describe Annotation of Regulatory Variants using Integrated Networks (ARVIN), a general computational framework for predictingcausal noncoding variants. For each disease, ARVIN first constructs a GRN using multi-dimensional omics data oncell/tissue-type relevant to the disease. ARVIN then uses a set of novel regulatory network-basedfeatures, combined with sequence-based features to make predictions.Using known causal variants ingene promoters and enhancersin a number of diseases, we show ARVIN outperforms state-of-the-art methods thatuse sequence-based features alone. 
+
+
+## 2 Network construction
+### 2.1 Enhancer prediction
+### 2.2 Enhancer-promoter interaction prediction
+### 2.3 Obtain gene-gene interation network
+### 2.3 Network scoring
+
+## 3 Prepare features for risk variants prediction
+### 3.1 Network-based features
+#### 3.1.1 Betweenness centrality
+#### 3.1.2 Closeness centrality
+#### 3.1.3 Pagerank centrality
+#### 3.1.4 Weighted degree
+#### 3.1.5 Module score
+### 3.2 GWAVA features
+### 3.3 FunSeq features
+
+## 4 Build a classifier for prioritizing risk varints
+### 4.1 Train a random forest classifier
+### 4.2 Predict causal disease variants
