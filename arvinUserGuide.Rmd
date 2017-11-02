@@ -19,8 +19,19 @@ Identifying causalnoncoding variants remains a daunting task. Becausenoncoding v
 
 ## 2 Network construction
 ### 2.1 Enhancer prediction
+ARVIN uses enhancer regions for mapping SNPs to enhancers. The data file must be in the following tab separated format:
+#chromosome	enhancer_center	enhancer_probability
+chr6	138231000	0.86
+chr1	160807000	0.79
+chr1	160808600	0.88
+You can use CSI-ANN software for predicting the enhancers. You can download CSI-ANN from our lab web page http://tanlab4generegulation.org/CSIANNWebpage.html . CSI-ANN uses histone modification data as input to predict enhancer regions in genome-wide. You can use the output of CSI-ANN (which is as shown above) as input for ARVIN.
 ### 2.2 Enhancer-promoter interaction prediction
-### 2.3 Obtain gene-gene interation network
+ARVIN uses enhancer-promoter interaction for mapping SNPS to genes via enhancers. The enhancer-promoter interaction data must be in the following format:
+#Chr	Start	End	Target	Score
+chr9	22124001	22126001	ENST00000452276	0.93
+chr2	242792001	242794001	ENST00000485966	0.792
+
+### 2.3 Obtain gene-gene interaction network
 ### 2.3 Network scoring
 
 ## 3 Prepare features for risk variants prediction
