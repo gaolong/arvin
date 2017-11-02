@@ -12,10 +12,9 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## 1 Introcution
+## 1 Introduction
 
-Identifying causalnoncoding variants remains a daunting task. Becausenoncoding variantsexert their effectsin the context of a gene regulatory network (GRN), we hypothesize that explicit use of disease-relevant GRNcan significantly improve the inference accuracy of noncoding risk variants. We describe Annotation of Regulatory Variants using Integrated Networks (ARVIN), a general computational framework for predictingcausal noncoding variants. For each disease, ARVIN first constructs a GRN using multi-dimensional omics data oncell/tissue-type relevant to the disease. ARVIN then uses a set of novel regulatory network-basedfeatures, combined with sequence-based features to make predictions.Using known causal variants ingene promoters and enhancersin a number of diseases, we show ARVIN outperforms state-of-the-art methods thatuse sequence-based features alone. 
-
+Identifying causalnoncoding variants remains a daunting task. Because noncoding variants exert their effectsin the context of a gene regulatory network (GRN), we hypothesize that explicit use of disease-relevant GRNcan significantly improve the inference accuracy of noncoding risk variants. We describe Annotation of Regulatory Variants using Integrated Networks (ARVIN), a general computational framework for predictingcausal noncoding variants. For each disease, ARVIN first constructs a GRN using multi-dimensional omics data oncell/tissue-type relevant to the disease. ARVIN then uses a set of novel regulatory network-basedfeatures, combined with sequence-based features to make predictions.This user guide contains the information necessary to run ARVIN.
 
 ## 2 Network construction
 ### 2.1 Enhancer prediction
