@@ -1,16 +1,28 @@
+#This script overlaps the SNPs being analyzed with the enhancer regions 
 use strict;
 
+#1st argument is the file containing list of SNPs in bed format
 my $snp_file = $ARGV[0];
+
+#2nd argument is the file containing the feature matrix for GWAVA and FunSeq
+#which is the output of merge_gwava_and_funseq_features.pl
 my $combined_score_file = $ARGV[1];
+
+#3rd argument is the output file that contains the eSNPs (SNPs overlapping with enhancer regions)
 my $snp_gene_score_file = $ARGV[2];
 
-
+#Open the input files for reading 
 open(SNP_POSITIONS, $snp_file) or die("Error: Cannot read CSI-ANN output file: $snp_file \n");
 open(COMBINED_SCORE, $combined_score_file) or die("Error: Cannot open enhancer-ep score file: $combined_score_file \n");
+
+#Open the output file for writing
 open(SNP_SCORE, ">$snp_gene_score_file") or die("Error: Cannot write snp score file: $snp_gene_score_file \n");
 
+#Hash array storing the combined scores for enhancers
 my %combined_scores = ();
 
+#Read combined scores for enhancers (enhancer prediction and ep scores)
+#and store the scores in the hash array
 while(<COMBINED_SCORE>)
 {
    chomp;   
@@ -36,11 +48,16 @@ while(<COMBINED_SCORE>)
 		 $combined_scores{$key} = $combined_score;	
 	} 
 	
-  
-} 
+}#while(<COMBINED_SCORE>)
 
+
+#Hash array storing the SNP gene interaction scores
 my %snp_gene_scores = ();
 
+#Read the SNP file line by line
+#If a SNP overlaps with an enhancer, store it into hash array
+#If the SNP overlaps with multiple enhancers (which should be rare)
+#Take the greater interaction score for that gene
 while(<SNP_POSITIONS>)
 {
    chomp;   
@@ -64,7 +81,6 @@ while(<SNP_POSITIONS>)
 		
 		if($snp_chrom eq $enh_chrom && $snp_start > $enh_start && $snp_end < $enh_end)
 		{
-			#print "SNP overlapping with enhancer: ".$_."\t".$key."\n";	
 			
 			if( exists($snp_gene_scores{$snp_id."\t".$gene_symbol} ) )
 			{
@@ -85,6 +101,7 @@ while(<SNP_POSITIONS>)
    
 }#while(<SNP_POSITIONS>)
 
+#Print the result into output file
 print SNP_SCORE "snp_id"."\t"."gene_symbol"."\t"."entrez_gene_id"."\t"."interaction_score"."\n";
 foreach my $key (keys %snp_gene_scores)
 {

@@ -1,24 +1,34 @@
-#this code is used to prepate +- 25 bp region boundaries 
+#This script is used to read +- 25 bp surroundng region of SNPs
+#The obtained sequence is used to scan TF binding specificity in subsequent steps 
 
 use strict;
 
+#1st argument is the list of SNPs in bed format as follows:
+#chr9	22124476	22124477	A	G	rs10757278
 my $snp_file = $ARGV[0];
+
+#2nd argument is the directory containing full genome sequence 
+#Separated into files, each file containing one chromosome sequence
+#It is in the annotation data directory
 my $genome_dir = $ARGV[1];
+
+#3rd argument is the output file that containes the +- 25 bp surrounding region
+#genomic sequence together with the reference and alternate alleles
 my $out_file = $ARGV[2];
 
 
 unless (open (SNP_FILE, $snp_file)){ die ("Cannot read input SNP file $snp_file\n"); }  
 unless (open (OUT_FILE, ">$out_file")){ die ("Cannot write sequence file $out_file\n"); }  
 
-#chr16	rs104895488	50744886	50744887	G	A	IBD
-#chr1	rs4651138	183001311	183001312	C	A	+
-#chr1	rs7418179	858801	A	G
+#Read the SNP file line by line
 while(my $line=<SNP_FILE>)
 {
    chomp($line);
    if(!($line =~ /chr23/))
    {
+		#Solit the line into array
 		my @array = split(/\t/,$line);
+		#Obtain the +- 25 bp surrounding coordinates
 		my $chrom = lc $array[0];
 		my $start = $array[2]-25;
 		my $end = $array[2]+25;
@@ -34,19 +44,22 @@ while(my $line=<SNP_FILE>)
 		    $chrom = "chrY";
 		}
 
+		#Open the chromosome file
       my $chrom_file = $genome_dir."/".$chrom;
-     
       open(CHROM_FILE, $chrom_file) or die("Cannot read $chrom_file \n");
       my $seq = "";
+		#Read until the start of +- 25 bp region 
       read CHROM_FILE, $seq, $start;
       read CHROM_FILE, $seq, 50;
       close(CHROM_FILE);
-      #print ">".$chrom."\t".$start."\t".$end."\t".$snp_id."\t".$ref."\t".$alt."\n".uc($seq)."\n";
+
+		#Print the sequence into the output file
       print OUT_FILE $chrom.":".$start."-".$end."\t".$snp_id."\t".$chrom."\t".($start+24)."\t".$ref."\t".$alt."\t".uc($seq)."\n";
    }
 
 }
 
+#Close the output file
 close(OUT_FILE);
 
 

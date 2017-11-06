@@ -1,35 +1,38 @@
 use strict;
 
-use Env;
-use List::MoreUtils qw(first_index);
+#This script reads the outputs of GWAVA and FunSeq and combines them into a single file in matrix format, as output
 
-#$arvin_dir = $ENV{'ARVIN_DIR'};
-#print $arvin_dir."\n";
-
+#1st argument is the GWAVA annotation output, containing the sequence features in csv format
 my $gwava_file = $ARGV[0];
+
+#2nd argument is the post-processed FunSeq output, in csv format
 my $funseq_file = $ARGV[1];
+
+#3rd argument is the output file in csv format, which contains the GWAVA output with FunSeq
 my $outfile = $ARGV[2];
 
-#$gwava_file="$arvin_dir/features/features_gwava/gwava_features_psnps_hgmd.bed";
-#$funseq_file="$arvin_dir/features/features_funseq/funseq_features_psnps_hgmd.bed";
-#$outfile = "$arvin_dir/features/features_gwava_and_funseq_psnps_hgmd.bed";
-
-
+#Open the input files for reading
 unless(open (GWAVA_FILE, $gwava_file) ) { die ("cannot open $gwava_file \n"); }
 unless(open (FUNSEQ_FILE, $funseq_file) ) { die ("cannot open $funseq_file \n"); }
+
+#Open the output file for writing
 unless(open (OUTFILE, ">$outfile") ) { die ("cannot open $outfile \n"); }
 
+#Read GWAVA header line
 my $gwava_header = <GWAVA_FILE>;
+chomp $gwava_header;
 
 my $gwava_header="snp_id".$gwava_header;
-#print $gwava_header;
-chomp $gwava_header;
+
+#Omit the class field in the end
 my @array = split(/,/, $gwava_header);
 splice @array, scalar(@array) - 1, 1;
 $gwava_header = join(",",@array);
 
+#Hash array storing the GWAVA features
 my %features_gwava = ();
 
+#Read the GWAVA file line by line and store it into array, omiting the last field, which is class
 while(my $line = <GWAVA_FILE>)
 {
   chomp $line;
@@ -37,22 +40,21 @@ while(my $line = <GWAVA_FILE>)
   my $snp_id = $array[0];
   splice @array, scalar(@array) -1, 1;
   $features_gwava{$snp_id} = join(",",@array);
-  #print $key."\n";
 }
 
+#Hash array storing the FunSeq features
 my $funseq_header = <FUNSEQ_FILE>;
-
-#print $funseq_header;
 my @array = split(/,/, $funseq_header);
 
+#Omit the snp id field from the header
 splice @array, 0, 1;
 my $funseq_header = join(",",@array);
-#print "$funseq_header \n";
 
+#Merge the headers and prin it into output file
 my $header = $gwava_header.",".$funseq_header ;
-#print $header."\n";
 print OUTFILE $header;
 
+#Read the FunSeq output, merge with GWAVA and print it into output file
 while(my $line = <FUNSEQ_FILE>)
 {
 	my @array = split(/,/, $line);
