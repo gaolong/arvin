@@ -26,7 +26,8 @@ my $gwava_header="snp_id".$gwava_header;
 
 #Omit the class field in the end
 my @array = split(/,/, $gwava_header);
-splice @array, scalar(@array) - 1, 1;
+splice @array, 0, 1;
+splice @array, 1, 5;
 $gwava_header = join(",",@array);
 
 #Hash array storing the GWAVA features
@@ -37,8 +38,10 @@ while(my $line = <GWAVA_FILE>)
 {
   chomp $line;
   my @array = split(/,/, $line);
-  my $snp_id = $array[0];
-  splice @array, scalar(@array) -1, 1;
+  my $snp_id = $array[1];
+  splice @array, 0, 1;
+  splice @array, 1, 5;
+
   $features_gwava{$snp_id} = join(",",@array);
 }
 
@@ -50,7 +53,7 @@ my @array = split(/,/, $funseq_header);
 splice @array, 0, 1;
 my $funseq_header = join(",",@array);
 
-#Merge the headers and prin it into output file
+#Merge the headers and print it into output file
 my $header = $gwava_header.",".$funseq_header ;
 print OUTFILE $header;
 
