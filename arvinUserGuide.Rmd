@@ -58,3 +58,30 @@ If you prefer to run FunSeq locally, you can download FunSeq binaries from http:
 ## 4 Build a classifier for prioritizing risk varints
 ### 4.1 Train a random forest classifier
 ### 4.2 Predict causal disease variants
+To run the first module of ARVIN to process the features for the SNPs, navigate into the ARVIN directory where the executable shell script process_features.sh is stored and execute it as follows:  
+./process_features.sh \  
+             input_snps_file.bed \  
+             csi_ann_output_file.txt \  
+	 	im_pet_output_file.bed \  
+            	gwava_features_file.csv \  
+            	funseq_feautes_file.bed \  
+            	output_directory   
+              
+This script will generate three output files, to be used as input in the second step. 
+
+1. disruption_p.txt : This file contains strongest transcription factor binding disruption caused by the SNPs being analyzed in tab separated format.  
+snp	ref	alt	TF	disruption_p	disruption_q	log_disruption_q  
+rs4784227	C	T	CUX1	0.0518	0.0518	1.28567024025477  
+rs11568821	C	T	RUNX3	0.0215	0.0215	1.66756154008439  
+      
+2. snp_target_gene.txt: This file lists the SNP-gene interactions in tab separated format.        
+ snp_id	gene_symbol	entrez_gene_id	interaction_score  
+rs200820567	ADAM7	8756	0.00450758418  
+rs339331	MIR624	693209	0.058555728  
+rs1542725	C1RL	51279	0.258880096  
+
+3. features_gwava_funseq.csv: This file contains the GWAVA and FunSeq features for the input SNPs in comma separated format.  
+snp_id,chr,end,start,ATF3,BATF,BCL11A,BCL3,BCLAF1,...  
+ rs10757278,chr9,22124477,22124476,0.0,0.0,0.0,0.0,...  
+rs10811656,chr9,22124472,22124471,0.0,0.0,0.0,0.0,...  
+
