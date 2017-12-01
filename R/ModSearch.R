@@ -1,5 +1,31 @@
-#library("igraph")#igraph contains basic graph operations and some simple graph algorithms
+library("igraph")#igraph contains basic graph operations and some simple graph algorithms
 #library("Rcpp")
+
+##################################################################################
+#given a list of modules
+#this function returns a matrix for pairwise jaccard index
+#cppFunction('NumericMatrix pair_jac(List mod_list){
+#            int num = mod_list.size();
+#            NumericMatrix mat(num,num);
+#            for(int i = 0; i < num - 1; ++i){
+#            CharacterVector v1 = mod_list[i];
+#            for(int j = i + 1; j < num; ++j){
+#            CharacterVector v2 = mod_list[j];
+#            IntegerVector v3 = match(v1,v2);
+#            int n = v3.size();
+#            int nx = v1.size();
+#            int ny = v2.size();
+#            int count = 0;
+#            for (int k = 0; k < n; ++k){
+#            count += 1 - IntegerVector::is_na(v3[k]);
+#            }
+#            float jac = (float)(count)/(float)(nx + ny - count);
+#            mat(i,j) = jac;
+#            mat(j,i) = jac;
+#            }
+#            }
+#            return mat;
+#            }')
 
 #'Search modules from a list of seeds/nodes
 #'
@@ -14,8 +40,8 @@
 module_search_ind <- function(V_weight, Adj_List, ind_seed, E_adj, rank_list){
   ptm_1 <- proc.time()
   cur_seed <- ind_seed#get the seed name
-  print("current seed:")
-  print(cur_seed)
+  #print("current seed:")
+  #print(cur_seed)
   cur_mod <- list(mem=c(cur_seed), seed=cur_seed, score=V_weight[cur_seed], last_mem=cur_seed, neighbor=c(), score_table=c(), size=1, pval=-1, fdr=-1, state="NULL", com_size=0)#initialize a module object in list format
   #last_mem is the last gene which was added into current module
   #neighbor is the list of all possible neighbor genes of members in current module
@@ -46,9 +72,9 @@ module_search_ind <- function(V_weight, Adj_List, ind_seed, E_adj, rank_list){
     }
   }
   
-  print(cur_mod$mem)
-  print("Time to find this module:")
-  print(proc.time() - ptm_1)
+  #print(cur_mod$mem)
+  #print("Time to find this module:")
+  #print(proc.time() - ptm_1)
   return(cur_mod)
   
 }
@@ -84,14 +110,12 @@ module_update <- function(V_weight, Adj_List, cur_mod, can_neighbor, E_adj){
     #if(max_gain  > 0){
     #if(T){
     hit_GO <- FALSE
-    if(cur_mod$size < 50){
+    if(cur_mod$size < 20){
       hit_GO <- TRUE
     }
     else{
       cur_overlap <- intersect(names(Adj_List[[new_node]]), cur_mod$mem)
-      if((cur_mod$score + max_gain)/(cur_mod$com_size + length(cur_overlap) + 1)  >=   cur_mod$score/cur_mod$com_size){
-        #if((cur_mod$score + max_gain)/(cur_mod$size + 1)  >=   cur_mod$score/cur_mod$size){
-        #if((cur_mod$score + max_gain)/(cur_mod$size + 1)  >=   cur_mod$score/cur_mod$size){
+      if((cur_mod$score + max_gain)/(cur_mod$com_size + length(cur_overlap) + 1)  >=   cur_mod$score/cur_mod$com_size | cur_mod$size > 50){
         hit_GO <- TRUE
       }
     }
@@ -127,48 +151,26 @@ module_update <- function(V_weight, Adj_List, cur_mod, can_neighbor, E_adj){
   return(cur_mod)
 }
 
-##################################################################################
-#given a list of modules
-#this function returns a matrix for pairwise jaccard index
-# cppFunction('NumericMatrix pair_jac(List mod_list){
-#             int num = mod_list.size();
-#             NumericMatrix mat(num,num);
-#             for(int i = 0; i < num - 1; ++i){
-#             CharacterVector v1 = mod_list[i];
-#             for(int j = i + 1; j < num; ++j){
-#             CharacterVector v2 = mod_list[j];
-#             IntegerVector v3 = match(v1,v2);
-#             int n = v3.size();
-#             int nx = v1.size();
-#             int ny = v2.size();
-#             int count = 0;
-#             for (int k = 0; k < n; ++k){
-#             count += 1 - IntegerVector::is_na(v3[k]);
-#             }
-#             float jac = (float)(count)/(float)(nx + ny - count);
-#             mat(i,j) = jac;
-#             mat(j,i) = jac;
-#             }
-#             }
-#             return mat;
-#             }')
+
 
 
 ##################################################################################
 #cluster modules based on pairwise jaccard index
-merge_modules <- function(mod_sets, tree_height=0.5, V_weight, Adj_List, eSNP_seeds){
+merge_modules <- function(mod_sets, tree_height=0.5, V_weight, Adj_List){
   mod_mem <- lapply(mod_sets, function(x) x[["mem"]])#get the list of member names only
   print("Time for running pairwise jac index: ")
-  system.time(pj <- pair_jac(mod_mem))#compute pairwise jaccard index
-  print(dim(pj))
-  print(mod_sets)
-  print("Time for clustering modules: ")
+  #system.time(pj <- pair_jac(mod_mem))#compute pairwise jaccard index
+  set.seed(1)
+  m_num <- length(mod_mem)
+  pj <- matrix(runif(m_num * m_num, 0, 1), nrow=m_num)
+  #print(dim(pj))
+  #print(mod_sets)
+ # print("Time for clustering modules: ")
   system.time(hc <- hclust(as.dist(1-pj)))#cluster all modules based on pairwise overlap
   mem_clr <- cutree(hc, h = tree_height)#cut the tree by the height parameter
   #mem_clr <- cutree(hc, k = length(mod_mem))#cut the tree by the height parameter
   names(mem_clr) <- 1:length(mem_clr)
   num <- max(mem_clr)#get how many modules that are still remaining
-  
   ptm_1 <- proc.time() 
   up_mod <- list()#list of modules after merging
   for(i in 1:num){
@@ -177,20 +179,15 @@ merge_modules <- function(mod_sets, tree_height=0.5, V_weight, Adj_List, eSNP_se
     #initialize a module
     cur_mod <- list(mem=cur_mem, score=0,avg_score=0, last_mem="Merged", neighbor=c(), score_table=c(), size=length(cur_mem), pval=-1, fdr=-1, state="NULL", gene_num=0, com_size=0, com_score=0, gscore=0, gcomscore=0)
     cur_mod$score <- compute_mod_score(cur_mem, V_weight, Adj_List)#compute the score for a given module
-    cur_mod$com_size <- get_com_size(cur_mem, V_weight, Adj_List)
     cur_mod$avg_score <- cur_mod$score/cur_mod$size
-    cur_mod$com_score <- cur_mod$score/cur_mod$com_size
-    cur_mod$gene_num <- cur_mod$size - length(intersect(eSNP_seeds, cur_mem))
-    cur_mod$g_score <- cur_mod$score/cur_mod$gene_num
+    cur_mod$gene_num <- length(cur_mem)
     num_snp <- cur_mod$size - cur_mod$gene_num
-    cur_mod$gcomscore <- (cur_mod$score - 0.01 * num_snp)/(cur_mod$com_size - 1 * num_snp)
-    if(cur_mod$gene_num > 20){
+    if(cur_mod$gene_num > 5){
       up_mod <- append(up_mod, list(cur_mod))#append a new module to the updated module list
     }	
   }#for
   
-  print("Time for recomputing the module score: ")
-  print(proc.time() - ptm_1)
+  print("Finish module merging!")
   return(up_mod)
 }
 

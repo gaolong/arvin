@@ -10,8 +10,12 @@
 #'@param pos a vector specifying the positive set of elements
 #'@param neg a vector specifying the control set of elements
 #'@return a random forest classifier
-trainMod <- function(FeatureMatrix, pos, neg){
-  
+trainMod <- function(FeatureMatrix){
+  x <- as.matrix(FeatureMatrix[,1:(dim(FeatureMatrix)[2] - 1)])
+  y <- as.factor(as.character(FeatureMatrix[,dim(FeatureMatrix)[2]]))#last column indicates their labels
+  train_control <- trainControl(method="cv", number=5,summaryFunction=twoClassSummary, classProbs=T, savePredictions = T)
+  RFmodel <- train(x, y, trControl=train_control, method="rf", strata=y, sampsize=c(50,50))
+  print("The random forest model has been trained!")
   return(RFmodel)
 }
 

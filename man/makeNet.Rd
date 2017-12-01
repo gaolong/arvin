@@ -4,16 +4,16 @@
 \alias{makeNet}
 \title{Generate a graph object for input network}
 \usage{
-makeNet(Interaction_file, Node_file, rand = FALSE, seed = 1)
+makeNet(edgeFile, nodeFile, rand = FALSE, seed = 1)
 }
 \arguments{
-\item{Interaction_file}{file path for edges in input network}
-
-\item{Node_file}{file path for nodes in input network}
-
 \item{rand}{boolean value indicating if randomized network will be generated}
 
 \item{seed}{seed for network randomization}
+
+\item{Interaction_file}{file path for edges in input network}
+
+\item{Node_file}{file path for nodes in input network}
 }
 \value{
 a graph object

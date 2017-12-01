@@ -4,7 +4,7 @@
 \alias{trainMod}
 \title{Train a classifier}
 \usage{
-trainMod(FeatureMatrix, pos, neg)
+trainMod(FeatureMatrix)
 }
 \arguments{
 \item{FeatureMatrix}{a matrix of feature values}

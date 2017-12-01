@@ -31,17 +31,99 @@ chr9	22124001	22126001	ENST00000452276	0.93
 chr2	242792001	242794001	ENST00000485966	0.792  
 You can use IM-PET software for predicting enhancer-promoter interactions. For this purpose, you can download IM-PET from http://tanlab4generegulation.org/IM-PET.html . IM-PET uses enhancer predictions (computed using CSI-ANN) and gene expression data to compute enhancer-promoter interactions. You can use the output of IM-PET (which is as shown above) as input for ARVIN.
 
-### 2.3 Obtain gene-gene interaction network
-### 2.3 Network scoring
+### 2.2 Obtain gene-gene interaction network
+Gene interaction network can be obtained from multiple sources including protein-protein interaction networks and functional interaction networks. 
 
+### 2.3 Network scoring
+To make different types of scores comparable, we used a min-max normalization to normalize scores within each category.
+
+### 2.4 Network input file format
+There are two types of network input files users need to prepare. One is the node attribute file and the other is network/edge attribute file. The node attribute file has 3 columns. The first column denotes snp id or gene id, and the second column denotes the score of this snp or gene. The third column specifiy if this node is a snp or gene. In the network file, there are 4 columns. The first two columns list two nodes of a given edge. The third collumn has the normalized score for this edge. The forth column specifies edge type indicating if this interaction is between snps and genes or genes. 
+
+```{r, message=FALSE}
+edgeFile <- "example_input/EdgeFile.txt"
+nodeFile <- "example_input/NodeFile.txt"
+edge_set <- read.table(edgeFile, sep="\t")
+node_set   <- read.table(nodeFile, sep="\t")
+colnames(node_set) <- c("Node", "Node score", "Node type")
+colnames(edge_set) <- c("First node", "Second node", "Edge score", "Edge type")
+edge_set[98:103,]
+node_set[98:103,]
+```
+
+```{r, echo=FALSE, message=FALSE}
+devtools::load_all(".")
+library(ARVIN)
+library(igraph)
+Net <- makeNet(edgeFile, nodeFile)
+node_data <- read.table(nodeFile)
+node_data <- subset(node_data, node_data$V3 == "eSNP")
+eSNP_seeds <- as.character(node_data$V1)#use all SNPs as seeds for search 
+node_data <- NULL#free memory
+
+V_weight <- V(Net)$weight#put the node weight into an array to save time
+names(V_weight) <- V(Net)$name#set the names for the array
+E_adj <- as_adj(Net,attr="weight")#use adj matrix to save time for getting edge weight
+colnames(E_adj) <- names(V_weight)
+row.names(E_adj) <- names(V_weight)
+
+Adj_List <- c()
+batch <- 1000#split the matrix into a few parts in case of a memory error
+index <- floor(dim(E_adj)[1]/batch)
+for(i in 1:index){
+  ifelse(i != index,
+         end <- i * batch,
+         end <- dim(E_adj)[1]
+  )
+  start <- (i-1) * batch + 1
+  cur_list <- apply(E_adj[start:end,], 1, function(x) x[x!=0])
+  Adj_List <- append(Adj_List, cur_list)
+  
+}
+```
 ## 3 Prepare features for risk variants prediction
 ### 3.1 Network-based features
+For most of network features such as the centrality, we wrapped up functions from "igraph" package to calculate their values. We also implemented our module identification algorithm to find modules containing snps we are intereted in. To calculate all network based features, users can simply call NetFeature()
+```{r, message=FALSE}
+Nodes <- as.character(edge_set[,2])
+Net <- makeNet(edgeFile, nodeFile)
+str(Net)
+topoFeature <-NetFeature(Net, nodeFile, edgeFile)
+head(topoFeature)
+```
+
 #### 3.1.1 Betweenness centrality
+Betweenness is a centrality measure of a vertex within a graph. Betweenness centrality quantifies the number of times a node acts as a bridge along the shortest path between two other nodes.
+```{r, message=FALSE}
+bet_vals <- BetFeature(Net, Nodes)
+head(bet_vals)
+```
 #### 3.1.2 Closeness centrality
+Closeness is a measure of the degree to which an individual is near all other individuals in a network. It is the inverse of the sum of the shortest distances between each node and every other node in the network. Closeness is the reciprocal of farness.
+```{r, message=FALSE}
+close_vals <- CloseFeature(Net, Nodes)
+head(close_vals)
+```
 #### 3.1.3 Pagerank centrality
+PageRank (PR) is an algorithm used by Google Search to rank websites in their search engine results. PageRank is a way of measuring the importance of website pages. In the biological networks, we can also use this algorithm to measure the importance of genes/nodes.
+```{r, message=FALSE}
+page_vals <- PageFeature(Net, Nodes)
+head(page_vals)
+```
 #### 3.1.4 Weighted degree
+The weighted degree of a node is like the degree. It's based on the number of edge for a node, but ponderated by the weigtht of each edge. It's doing the sum of the weight of the edges.
+```{r, message=FALSE}
+wd_vals <- WDFeature(Adj_List, Nodes)
+head(wd_vals)
+```
 #### 3.1.5 Module score
+Gene modules downstream of an eSNP. Our overall hypothesis is that a causal eSNP contributes to disease risk by directly causing expression changes in genes of diseaserelevant pathways. Thus, in addition to the direct target gene of the eSNP, other genes in the same pathway can also provide discriminative information. With the weighted GRN, our goal is to identify “heavy” gene modules in the network that connects a given eSNP to a set of genes
+```{r, message=FALSE}
+mod_vals <- ModuleFeature(Adj_List, E_adj, eSNP_seeds, V_weight, Nodes)
+head(mod_vals)
+```
 ### 3.2 GWAVA features
+
 ARVIN uses sequence features for the input SNPs generated by GWAVA. GWAVA is an open-source software developed by Sanger Institute. You can either upload the SNPs to GWAVA web page and get the output or download the source and run locally.
 For running GWAVA online navigate to  https://www.sanger.ac.uk/sanger/StatGen_Gwava, upload the list of input SNPs and get the features in csv format, which will be input for ARVIN.
 If you prefer to run it locally, you need to dowload the source code from ftp://ftp.sanger.ac.uk/pub/resources/software/gwava/v1.0/src/  and annotation data from ftp://ftp.sanger.ac.uk/pub/resources/software/gwava/v1.0/source_data/ . Then you can run it local by running gwava_annotate.py and generate the features, which will be input for ARVIN.

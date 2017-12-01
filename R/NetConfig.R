@@ -1,5 +1,5 @@
 #Author: Long Gao
-#library("igraph")#igraph contains basic graph operations and some simple graph algorithms
+library("igraph")#igraph contains basic graph operations and some simple graph algorithms
 #library("BiRewire")
 
 ####################################################################################################################
@@ -19,13 +19,12 @@
 #'@param rand boolean value indicating if randomized network will be generated
 #'@param seed seed for network randomization
 #'@return a graph object
-makeNet <- function(Interaction_file, Node_file, rand=FALSE, seed=1){
+makeNet <- function(edgeFile, nodeFile, rand=FALSE, seed=1){
   #read edge and node information from corresponding files
-  edge_set <- read.table(Interaction_file, sep="\t")
-  node_set   <- read.table(Node_file, sep="\t")
+  edge_set <- read.table(edgeFile, sep="\t")
+  node_set   <- read.table(nodeFile, sep="\t")
   edge_set[,1] <- as.character(edge_set[,1])#in case the gene id is digits like
   edge_set[,2] <- as.character(edge_set[,2])
-  #edge_set[,3] <- edge_set[,3] * 0#penalize edge weight
   node_set[,1] <- as.character(node_set[,1])
   
   if(rand==TRUE){
@@ -52,7 +51,7 @@ makeNet <- function(Interaction_file, Node_file, rand=FALSE, seed=1){
   ######################################################################################
   #some genes don't a node weight, so identify them and assign a zero weight
   all_nodes <- union(edge_set[,1],edge_set[,2])
-  NonHit <- setdiff(all_nodes,node_set[,1])
+  NonHit <- setdiff(all_nodes, node_set[,1])
   NonHit_data <- data.frame(NonHit, 0, "Gene")
   colnames(NonHit_data) <- colnames(node_set)
   node_set <- rbind(node_set, NonHit_data)
@@ -63,7 +62,7 @@ makeNet <- function(Interaction_file, Node_file, rand=FALSE, seed=1){
   if(dim(edge_set)[2] > 2){
     #if the third col was given
     #the node "type" attribute will be specified 
-    graph <- set_vertex_attr(graph, "type", value=as.character(node_set[V(graph)$name,3]))#add edge weight information to the graph
+    graph <- set_vertex_attr(graph, "type", value=as.character(node_set[V(graph)$name,3]))#add node weight information to the graph
   }
   
   print("The undirected-weighted eSNP-gene network has been constructed!")
@@ -91,20 +90,11 @@ sfhuffleEdge <- function(edge_set, seed=1){
   #shuffle node weight within the same node type eSNP/Gene
   EP_set <- subset(edge_set, edge_set[,4]=="EP")
   FI_set <- subset(edge_set, edge_set[,4]=="FI")
-  #set.seed(seed)
+  set.seed(seed)
   EP_set[,3] <- sample(EP_set[,3])#shuffle edge weight within EP interactions
   EP_set[,2] <- sample(EP_set[,2])#shuffle snp-gene connections
   set.seed(seed)
   FI_set[,3] <- sample(FI_set[,3])#shuffle edge weight within functional interactions
-  #temp_FI <- FI_set[,1:2]
-  #temp_g <- make_graph(unlist(t(temp_FI)), directed=FALSE)
-  #rewire_g <- birewire.rewire.undirected(temp_g,100*length(E(temp_g)))
-  #rewire_edge <- as_edgelist(rewire_g)
-  #new_FI_set <- as.data.frame(cbind(rewire_edge, FI_set[,3], rep("FI",dim(FI_set)[1])))
-  #new_FI_set[,3] <- as.numeric(FI_set[,3])
-  #print("Rewiring has been done!")
-  #shuf_edge_set <- as.data.frame(rbind(EP_set, new_FI_set))
-  #shuf_edge_set[,3] <- as.numeric(shuf_edge_set[,3])
   shuf_edge_set <- as.data.frame(rbind(EP_set, FI_set))#only shuffle the node weight
   shuf_edge_set[,3] <- as.numeric(shuf_edge_set[,3])#only shuffle the node weight
   return(shuf_edge_set)

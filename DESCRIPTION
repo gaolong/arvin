@@ -1,6 +1,6 @@
 Package: ARVIN
 Title: Annotation of Regulatory Variants using Integrated Networks
-Decription: This is a general computational framework for predictingcausal noncoding variants
+Description: This is a general computational framework for predicting causal noncoding variants
 Version: 0.1
 Author: Long Gao <gaolongnuaa@gmail.com>, Yasin Uzun <uzuny@email.chop.edu>, Kai Tan <tank1@email.chop.edu>
 Maintainer: Long Gao <gaolongnuaa@gmail.com>
