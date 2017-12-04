@@ -64,7 +64,9 @@ mkdir -p  $TFBS_score_dir;
 perl $perl_scripts_dir/disruption_calculate_log_odds_ratio.pl $TFM_cutoff_file $pwm_dir $snp_seq_file $TFBS_score_dir $TFBS_score_changes_file
 echo "Calculating TFBS disruption p values..."
 #Calculate empirical p-values for the differences between log odds scores by comparing the calcualted difference with the background
-Rscript $R_scripts_dir/calculate_empirical_p_values.R $TFBS_score_changes_file $arvin_annotation_data_dir/score_changes_sampling/ $disruption_dir/disruption_p.txt
+R -q -e "get_disruption_p_value($TFBS_score_changes_file, $arvin_annotation_data_dir/score_changes_sampling/, $disruption_dir/disruption_p.txt)"
+
+/home/uzuny/arvin/revision/software/v0.5/process_features.sh
 cp $disruption_dir/disruption_p.txt $output_dir/
 
 echo "TF binding disruption computed."
