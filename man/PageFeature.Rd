@@ -4,7 +4,7 @@
 \alias{PageFeature}
 \title{Compute pagerank centrality for a list of nodes}
 \usage{
-PageFeature(Net, Nodes)
+PageFeature(Net, edge_data)
 }
 \arguments{
 \item{Net}{a graph object representing the input network}

@@ -4,7 +4,7 @@
 \alias{BetFeature}
 \title{Compute betweenness centrality for a list of nodes}
 \usage{
-BetFeature(Net, Nodes)
+BetFeature(Net, edge_data)
 }
 \arguments{
 \item{Net}{a graph object representing the input network}

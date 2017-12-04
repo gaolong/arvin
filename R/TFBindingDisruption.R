@@ -36,11 +36,11 @@ get_disruption_p_value <- function(score_changes_file, bg_score_changes_dir, out
     {
       next
     }
-<<<<<<< HEAD
+#<<<<<<< HEAD
     
-=======
+#=======
   
->>>>>>> 3a4adcf8af443db2d2ebb934d137f230bf5ee451
+#>>>>>>> 3a4adcf8af443db2d2ebb934d137f230bf5ee451
     #Read the background SNPs table
     bg_snps = read.table(file=bg_score_changes_file,head=F,sep="\t",fill = T);
     bg_snps = bg_snps[complete.cases(bg_snps),]
@@ -101,13 +101,13 @@ get_disruption_p_value <- function(score_changes_file, bg_score_changes_dir, out
   
   #Write the output file
   write.table(output4, file=output_filename, row.names = F, col.names = T, quote=F, sep = "\t")
-<<<<<<< HEAD
+#<<<<<<< HEAD
   
 }
 
-=======
-
-}
+#=======
 
 
->>>>>>> 3a4adcf8af443db2d2ebb934d137f230bf5ee451
+
+
+#>>>>>>> 3a4adcf8af443db2d2ebb934d137f230bf5ee451

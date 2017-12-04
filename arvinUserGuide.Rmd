@@ -8,7 +8,7 @@ output:
     toc_depth: 4
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -24,6 +24,7 @@ chr6	138231000	0.86
 chr1	160807000	0.79  
 chr1	160808600	0.88  
 You can use CSI-ANN software for predicting the enhancers. For this purpose, you can download CSI-ANN from our lab web page http://tanlab4generegulation.org/CSIANNWebpage.html . CSI-ANN uses histone modification data as input to predict enhancer regions in genome-wide. You can use the output of CSI-ANN (which is as shown above) as input for ARVIN.
+
 ### 2.2 Enhancer-promoter interaction prediction
 ARVIN uses enhancer-promoter interaction for mapping SNPS to genes via enhancers. The enhancer-promoter interaction data must be in tab separated format as follows:  
 #Chr	Start	End	Target	Score  
@@ -40,7 +41,7 @@ To make different types of scores comparable, we used a min-max normalization to
 ### 2.4 Network input file format
 There are two types of network input files users need to prepare. One is the node attribute file and the other is network/edge attribute file. The node attribute file has 3 columns. The first column denotes snp id or gene id, and the second column denotes the score of this snp or gene. The third column specifiy if this node is a snp or gene. In the network file, there are 4 columns. The first two columns list two nodes of a given edge. The third collumn has the normalized score for this edge. The forth column specifies edge type indicating if this interaction is between snps and genes or genes. 
 
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 edgeFile <- "example_input/EdgeFile.txt"
 nodeFile <- "example_input/NodeFile.txt"
 edge_set <- read.table(edgeFile, sep="\t")
@@ -51,7 +52,7 @@ edge_set[98:103,]
 node_set[98:103,]
 ```
 
-```{r, echo=FALSE, message=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 devtools::load_all(".")
 library(ARVIN)
 library(igraph)
@@ -60,6 +61,7 @@ node_data <- read.table(nodeFile)
 node_data <- subset(node_data, node_data$V3 == "eSNP")
 eSNP_seeds <- as.character(node_data$V1)#use all SNPs as seeds for search 
 node_data <- NULL#free memory
+edge_data <- read.table(edgeFile)
 
 V_weight <- V(Net)$weight#put the node weight into an array to save time
 names(V_weight) <- V(Net)$name#set the names for the array
@@ -81,52 +83,64 @@ for(i in 1:index){
   
 }
 ```
+
 ## 3 Prepare features for risk variants prediction
+
 ### 3.1 Network-based features
-For most of network features such as the centrality, we wrapped up functions from "igraph" package to calculate their values. We also implemented our module identification algorithm to find modules containing snps we are intereted in. To calculate all network based features, users can simply call NetFeature()
-```{r, message=FALSE}
+For most of network features such as the centrality, we wrapped up functions from "igraph" package to calculate their values. We also implemented our module identification algorithm to find modules containing snps we are intereted in. To calculate all network based features, users can simply call NetFeature(). SNPs in the same enhancer usually have same topological features. However, we can further distinguish them using their TF motif breaking scores.
+```{r, message=FALSE, warning=FALSE}
 Nodes <- as.character(edge_set[,2])
 Net <- makeNet(edgeFile, nodeFile)
-str(Net)
 topoFeature <-NetFeature(Net, nodeFile, edgeFile)
 head(topoFeature)
 ```
 
 #### 3.1.1 Betweenness centrality
 Betweenness is a centrality measure of a vertex within a graph. Betweenness centrality quantifies the number of times a node acts as a bridge along the shortest path between two other nodes.
-```{r, message=FALSE}
-bet_vals <- BetFeature(Net, Nodes)
+```{r, message=FALSE, warning=FALSE}
+bet_vals <- BetFeature(Net, edge_data)
 head(bet_vals)
 ```
+
 #### 3.1.2 Closeness centrality
 Closeness is a measure of the degree to which an individual is near all other individuals in a network. It is the inverse of the sum of the shortest distances between each node and every other node in the network. Closeness is the reciprocal of farness.
-```{r, message=FALSE}
-close_vals <- CloseFeature(Net, Nodes)
+```{r, message=FALSE, warning=FALSE}
+close_vals <- CloseFeature(Net, edge_data)
 head(close_vals)
 ```
+
 #### 3.1.3 Pagerank centrality
 PageRank (PR) is an algorithm used by Google Search to rank websites in their search engine results. PageRank is a way of measuring the importance of website pages. In the biological networks, we can also use this algorithm to measure the importance of genes/nodes.
-```{r, message=FALSE}
-page_vals <- PageFeature(Net, Nodes)
+```{r, message=FALSE, warning=FALSE}
+page_vals <- PageFeature(Net, edge_data)
 head(page_vals)
 ```
+
 #### 3.1.4 Weighted degree
 The weighted degree of a node is like the degree. It's based on the number of edge for a node, but ponderated by the weigtht of each edge. It's doing the sum of the weight of the edges.
-```{r, message=FALSE}
-wd_vals <- WDFeature(Adj_List, Nodes)
+```{r, message=FALSE, warning=FALSE}
+wd_vals <- WDFeature(Adj_List, edge_data)
 head(wd_vals)
 ```
+
 #### 3.1.5 Module score
 Gene modules downstream of an eSNP. Our overall hypothesis is that a causal eSNP contributes to disease risk by directly causing expression changes in genes of diseaserelevant pathways. Thus, in addition to the direct target gene of the eSNP, other genes in the same pathway can also provide discriminative information. With the weighted GRN, our goal is to identify “heavy” gene modules in the network that connects a given eSNP to a set of genes
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 mod_vals <- ModuleFeature(Adj_List, E_adj, eSNP_seeds, V_weight, Nodes)
 head(mod_vals)
 ```
+
 ### 3.2 GWAVA features
 
 ARVIN uses sequence features for the input SNPs generated by GWAVA. GWAVA is an open-source software developed by Sanger Institute. You can either upload the SNPs to GWAVA web page and get the output or download the source and run locally.
 For running GWAVA online navigate to  https://www.sanger.ac.uk/sanger/StatGen_Gwava, upload the list of input SNPs and get the features in csv format, which will be input for ARVIN.
 If you prefer to run it locally, you need to dowload the source code from ftp://ftp.sanger.ac.uk/pub/resources/software/gwava/v1.0/src/  and annotation data from ftp://ftp.sanger.ac.uk/pub/resources/software/gwava/v1.0/source_data/ . Then you can run it local by running gwava_annotate.py and generate the features, which will be input for ARVIN.
+
+```{r, message=F, warning=FALSE}
+gwava <- read.table("example_input/gwava_matrix.txt", header=T, sep="\t")
+gwava[1:8,168:174]
+```
+
 ### 3.3 FunSeq features
 ARVIN also uses sequence features generated by FunSeq. FunSeq can also be run online or binaries can be downloaded to run locally. 
 For running FunSeq online, navigate to http://funseq.gersteinlab.org/analysis and upload the list of SNPs that you want to analyze. In the web page, it is noted that the input SNPs can be uploaded in bed format, SNP coordinates followed by reference and alternate alleles; but we discovered that it fails to process bed input. In order to have it run, you the first two seperators need to be two spaces and last two separators need to be tabs, as follows:  
@@ -137,8 +151,23 @@ Then, FunSeq will generate the features by selecting “bed” as the output for
 
 If you prefer to run FunSeq locally, you can download FunSeq binaries from http://funseq.gersteinlab.org/static/funseq-0.1.tar.gz and extract it into your local. You will also need to download FunSeq annotation data from http://funseq.gersteinlab.org/static/data/data.tar.gz , extract it into directory that you saved the binaries. Then you can run FunSeq binary file by setting the output format to bed.  
 
+```{r, message=F, warning=FALSE}
+funseq <- read.table("example_input/funseq_matrix.txt", header=T, sep="\t")
+head(funseq)
+```
+
+
 ## 4 Build a classifier for prioritizing risk varints
+
 ### 4.1 Train a random forest classifier
+Combining network, GWAVA features and FunSeq features, a random forest model can be trained to predict risk SNPs.
+```{r, message=FALSE, warning=FALSE}
+#combine 3 types of features
+group <- as.character(read.table("example_input/snp_labels.txt")[,1])
+features <- data.frame(topoFeature, gwava, funseq, group)
+RFmodel <- trainMod(features)#train a random forest classifier
+```
+
 ### 4.2 Predict causal disease variants
 To run the first module of ARVIN to process the features for the SNPs, navigate into the ARVIN directory where the executable shell script process_features.sh is stored and execute it as follows:  
 ./process_features.sh \  
@@ -166,4 +195,9 @@ rs1542725	C1RL	51279	0.258880096
 snp_id,chr,end,start,ATF3,BATF,BCL11A,BCL3,BCLAF1,...  
  rs10757278,chr9,22124477,22124476,0.0,0.0,0.0,0.0,...  
 rs10811656,chr9,22124472,22124471,0.0,0.0,0.0,0.0,...  
+
+```{r, message=FALSE, warning=FALSE}
+prob <- predMod(features[,-dim(features)[2]], RFmodel)#estimate the probablity score using trained model after removing the label/group informatin
+head(prob)#display the probablity score as positive or negative snps
+```
 

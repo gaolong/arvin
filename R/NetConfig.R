@@ -65,7 +65,7 @@ makeNet <- function(edgeFile, nodeFile, rand=FALSE, seed=1){
     graph <- set_vertex_attr(graph, "type", value=as.character(node_set[V(graph)$name,3]))#add node weight information to the graph
   }
   
-  print("The undirected-weighted eSNP-gene network has been constructed!")
+  #print("The undirected-weighted eSNP-gene network has been constructed!")
   return(graph)
 }
 

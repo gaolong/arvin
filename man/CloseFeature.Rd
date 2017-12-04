@@ -4,7 +4,7 @@
 \alias{CloseFeature}
 \title{Compute closeness centrality for a list of nodes}
 \usage{
-CloseFeature(Net, Nodes)
+CloseFeature(Net, edge_data)
 }
 \arguments{
 \item{Net}{a graph object representing the input network}

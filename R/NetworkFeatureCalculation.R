@@ -44,33 +44,23 @@ NetFeature <- function(Net, nodeFile, edgeFile){
   Nodes <- as.character(edge_data[,2])
   snp_match <- Nodes
   names(snp_match) <- snps
-  bet_vals <- BetFeature(Net, Nodes)
-  close_vals <- CloseFeature(Net, Nodes)
-  page_vals <- PageFeature(Net, Nodes)
-  wd_vals <- WDFeature(Adj_List, Nodes)
+  bet_vals <- BetFeature(Net, edge_data)
+  close_vals <- CloseFeature(Net, edge_data)
+  page_vals <- PageFeature(Net, edge_data)
+  wd_vals <- WDFeature(Adj_List, edge_data)
   snpDist <- snpFeature(Net, eSNP_seeds)
   mod_vals <- ModuleFeature(Adj_List, E_adj, eSNP_seeds, V_weight, Nodes)
   
-  names(bet_vals) <- snp_match[names(bet_vals)]
-  names(close_vals) <- snp_match[names(close_vals)]
-  names(page_vals) <- snp_match[names(page_vals)]
-  names(wd_vals) <- snp_match[names(wd_vals)]
+  #names(bet_vals) <- names(snp_match)
+  #names(close_vals) <- names(snp_match)
+  #names(page_vals) <- names(snp_match)
+  #names(wd_vals) <- names(snp_match)
   
-  #link gene names to snp ids
-  bet_vals_snp <- bet_vals[Nodes]
-  names(bet_vals_snp) <- snps
-  close_vals_snp <- close_vals[Nodes]
-  names(close_vals_snp) <- snps
-  page_vals_snp <- page_vals[Nodes]
-  names(page_vals_snp) <- snps
-  wd_vals_snp <- wd_vals[Nodes]
-  names(wd_vals_snp) <- snps
-  
-  FeatureMatrix <- data.frame(mod_vals[eSNP_seeds], bet_vals_snp[eSNP_seeds], 
-                              close_vals_snp[eSNP_seeds], page_vals_snp[eSNP_seeds],
-                              wd_vals_snp[eSNP_seeds], snpDist[eSNP_seeds])
+  FeatureMatrix <- data.frame(mod_vals[eSNP_seeds], bet_vals[eSNP_seeds], 
+                              close_vals[eSNP_seeds], page_vals[eSNP_seeds],
+                              wd_vals[eSNP_seeds], snpDist[eSNP_seeds])
   row.names(FeatureMatrix) <- eSNP_seeds
-  colnames(FeatureMatrix) <- c("Module_Score", "Betweenness", "Closeness","Pagerank", "WeightedDegree","SNP_Disrutption")
+  colnames(FeatureMatrix) <- c("Module_Score", "Betweenness", "Closeness","Pagerank", "Weighted_Degree","SNP_Disrutption")
   return(FeatureMatrix)
 }
 
@@ -81,9 +71,17 @@ NetFeature <- function(Net, nodeFile, edgeFile){
 #'@param Net a graph object representing the input network
 #'@param Nodes a list of node names 
 #'@return a list object containing the different type network features 
-BetFeature <- function(Net, Nodes){
+BetFeature <- function(Net, edge_data){
+  edge_data <- subset(edge_data, edge_data$V4 == "EP")
+  snps <- as.character(edge_data[,1])
+  Nodes <- as.character(edge_data[,2])
   bet_vals <- estimate_betweenness(Net, Nodes, directed = FALSE, cutoff=5)
-  return(bet_vals)
+  unhit <- setdiff(Nodes, names(bet_vals))#for snps which are not in any modules assign 0 to them
+  unhit_val <- rep(0, length(unhit))
+  names(unhit_val) <- unhit
+  c_bet_vals <- c(bet_vals, unhit_val)
+  names(c_bet_vals) <- edge_data[,1]
+  return(c_bet_vals)
 }
 
 #'Compute closeness centrality for a list of nodes
@@ -93,9 +91,17 @@ BetFeature <- function(Net, Nodes){
 #'@param Net a graph object representing the input network
 #'@param Nodes a list of node names 
 #'@return a list object containing the different type network features 
-CloseFeature <- function(Net, Nodes){
+CloseFeature <- function(Net, edge_data){
+  edge_data <- subset(edge_data, edge_data$V4 == "EP")
+  snps <- as.character(edge_data[,1])
+  Nodes <- as.character(edge_data[,2])
   close_vals <- estimate_closeness(Net, Nodes, cutoff=5)
-  return(close_vals)
+  unhit <- setdiff(Nodes, names(close_vals))#for snps which are not in any modules assign 0 to them
+  unhit_val <- rep(0, length(unhit))
+  names(unhit_val) <- unhit
+  c_close_vals <- c(close_vals, unhit_val)
+  names(c_close_vals) <- edge_data[,1]
+  return(c_close_vals)
 }
 
 #'Compute pagerank centrality for a list of nodes
@@ -105,9 +111,17 @@ CloseFeature <- function(Net, Nodes){
 #'@param Net a graph object representing the input network
 #'@param Nodes a list of node names 
 #'@return a list object containing the different type network features 
-PageFeature <- function(Net, Nodes){
+PageFeature <- function(Net, edge_data){
+  edge_data <- subset(edge_data, edge_data$V4 == "EP")
+  snps <- as.character(edge_data[,1])
+  Nodes <- as.character(edge_data[,2])
   page_vals <- page_rank(Net, vids=Nodes)$vector
-  return(page_vals)
+  unhit <- setdiff(Nodes, names(page_vals))#for snps which are not in any modules assign 0 to them
+  unhit_val <- rep(0, length(unhit))
+  names(unhit_val) <- unhit
+  c_page_vals <- c(page_vals, unhit_val)
+  names(c_page_vals) <- edge_data[,1]
+  return(c_page_vals)
 }
 
 #'Compute module score for a list of nodes
@@ -125,9 +139,10 @@ PageFeature <- function(Net, Nodes){
 #'
 #'@param Net a graph object representing the input network
 #'@param Nodes a list of node names 
-#'@return a list object containing the different type network features 
+#'@return a list object containing the different type network features
 snpFeature <- function(Net, eSNP_seeds){
-  snp_vals <- rep(1, length(eSNP_seeds))
+  set.seed(1)
+  snp_vals <- runif(length(eSNP_seeds), 0, 1)
   names(snp_vals) <- eSNP_seeds
   return(snp_vals)
 }
@@ -140,9 +155,17 @@ snpFeature <- function(Net, eSNP_seeds){
 #'@param Nodes a list of node names 
 #'@return a list object containing the different type network features 
 
-WDFeature <- function(Adj_List, Nodes){
-  wd_val <- unlist(lapply(Adj_List[Nodes], sum))
-  return(wd_val)
+WDFeature <- function(Adj_List, edge_data){
+  edge_data <- subset(edge_data, edge_data$V4 == "EP")
+  snps <- as.character(edge_data[,1])
+  Nodes <- as.character(edge_data[,2])
+  wd_vals <- unlist(lapply(Adj_List[Nodes], sum))
+  unhit <- setdiff(Nodes, names(wd_vals))#for snps which are not in any modules assign 0 to them
+  unhit_val <- rep(0, length(unhit))
+  names(unhit_val) <- unhit
+  c_wd_vals <- c(wd_vals, unhit_val)
+  names(c_wd_vals) <- edge_data[,1]
+  return(c_wd_vals)
 }
 
 #'Compute module score for a list of nodes

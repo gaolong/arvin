@@ -154,18 +154,45 @@ module_update <- function(V_weight, Adj_List, cur_mod, can_neighbor, E_adj){
 
 
 
+
+###################R code for computing pairwise overlap between modules
+pair_jac <- function(mod_mem){
+  names(mod_mem) <- as.character(1:length(mod_mem))
+  nms <- combn(names(mod_mem) , 2 , FUN = paste0 , collapse = "" , simplify = FALSE )
+  # Make the combinations of list elements
+  ll <-  combn( mod_mem , 2 , simplify = FALSE )
+  jac <- unlist(lapply( ll , function(x){
+    l1 <- length(x[[1]])
+    l2 <- length(x[[2]])
+    overlap <- sum(x[[1]] %in% x[[2]])
+    overlap/(l1 + l2 - overlap)
+    }))
+  len <- length(mod_mem)
+  jac_matrix <- matrix(rep(1, len * len), nrow=len)
+  count <- 1
+  for(i in 1:(len-1)){
+    for(j in (i + 1):len){
+      cur_val <- jac[count]
+      count <- count + 1
+      jac_matrix[i,j] <- cur_val
+      jac_matrix[j,i] <- cur_val
+    }
+  }
+  return(jac_matrix)
+}
+
 ##################################################################################
 #cluster modules based on pairwise jaccard index
 merge_modules <- function(mod_sets, tree_height=0.5, V_weight, Adj_List){
   mod_mem <- lapply(mod_sets, function(x) x[["mem"]])#get the list of member names only
-  print("Time for running pairwise jac index: ")
-  #system.time(pj <- pair_jac(mod_mem))#compute pairwise jaccard index
-  set.seed(1)
-  m_num <- length(mod_mem)
-  pj <- matrix(runif(m_num * m_num, 0, 1), nrow=m_num)
+  #print("Time for running pairwise jac index: ")
+  system.time(pj <- pair_jac(mod_mem))#compute pairwise jaccard index
+  #set.seed(1)
+  #m_num <- length(mod_mem)
+  #pj <- matrix(runif(m_num * m_num, 0, 1), nrow=m_num)
   #print(dim(pj))
   #print(mod_sets)
- # print("Time for clustering modules: ")
+  #print("Time for clustering modules: ")
   system.time(hc <- hclust(as.dist(1-pj)))#cluster all modules based on pairwise overlap
   mem_clr <- cutree(hc, h = tree_height)#cut the tree by the height parameter
   #mem_clr <- cutree(hc, k = length(mod_mem))#cut the tree by the height parameter
@@ -187,7 +214,7 @@ merge_modules <- function(mod_sets, tree_height=0.5, V_weight, Adj_List){
     }	
   }#for
   
-  print("Finish module merging!")
+  #print("Finish module merging!")
   return(up_mod)
 }
 
@@ -223,3 +250,5 @@ get_com_size <- function(mem, V_weight, Adj_List){
   com_size <- com_size + num_edge/2#each edge has been counted twice and it is shared by two nodes
   return(com_size)
 }
+
+

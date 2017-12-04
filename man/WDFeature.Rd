@@ -4,12 +4,12 @@
 \alias{WDFeature}
 \title{Compute weighted degree for a list of nodes}
 \usage{
-WDFeature(Adj_List, Nodes)
+WDFeature(Adj_List, edge_data)
 }
 \arguments{
-\item{Nodes}{a list of node names}
-
 \item{Net}{a graph object representing the input network}
+
+\item{Nodes}{a list of node names}
 }
 \value{
 a list object containing the different type network features
