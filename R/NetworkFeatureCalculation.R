@@ -6,9 +6,9 @@
 #'@param Nodes the path for the node file 
 #'@param edgeFile the path for the network file
 #'@return a matrix containing the different type network features 
-NetFeature <- function(Net, nodeFile, edgeFile){
-  edgeFile <- "example_input/EdgeFile.txt"
-  nodeFile <- "example_input/NodeFile.txt"
+NetFeature <- function(Net, nodeFile, edgeFile, snpFile){
+  #edgeFile <- "example_input/EdgeFile.txt"
+  #nodeFile <- "example_input/NodeFile.txt"
   
   ########################################preprocess the data
   Net <- makeNet(edgeFile, nodeFile)
@@ -49,7 +49,7 @@ NetFeature <- function(Net, nodeFile, edgeFile){
   close_vals <- CloseFeature(Net, edge_data)
   page_vals <- PageFeature(Net, edge_data)
   wd_vals <- WDFeature(Adj_List, edge_data)
-  snpDist <- snpFeature(Net, eSNP_seeds)
+  snpDist <- snpFeature(snpFile, eSNP_seeds)
   mod_vals <- ModuleFeature(Adj_List, E_adj, eSNP_seeds, V_weight, Nodes)
   
   FeatureMatrix <- data.frame(mod_vals[eSNP_seeds], bet_vals[eSNP_seeds], 
@@ -124,14 +124,14 @@ PageFeature <- function(Net, edge_data){
 #'
 #'This function computes the TF binding disruption score for a list of candidate snps
 #'
-#'@param Net a graph object representing the input network
-#'@param edge_data a dataframe specifying the edge information
+#'@param SNP_file the path of the file with SNP TF disruption score information
+#'@param eSNP_seeds a vector of candidate eSNPs
 #'@return a vector of TF binding disruption scores
-snpFeature <- function(Net, eSNP_seeds){
-  set.seed(1)
-  snp_vals <- runif(length(eSNP_seeds), 0, 1)
-  names(snp_vals) <- eSNP_seeds
-  return(snp_vals)
+snpFeature <- function(SNP_file, eSNP_seeds){
+  snp_tmp <- read.table(SNP_file)
+  snp_vals <- snp_tmp[,2]
+  names(snp_vals) <- snp_tmp[,1]
+  return(snp_vals[eSNP_seeds])
 }
 
 #'Compute weighted degree

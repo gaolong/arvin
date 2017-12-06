@@ -46,6 +46,7 @@ There are two types of network input files users need to prepare. One is the nod
 ```{r, message=FALSE, warning=FALSE}
 edgeFile <- "example_input/EdgeFile.txt"
 nodeFile <- "example_input/NodeFile.txt"
+SNP_pFile <- "example_input/snp_pval.txt"
 edge_set <- read.table(edgeFile, sep="\t")
 node_set   <- read.table(nodeFile, sep="\t")
 colnames(node_set) <- c("Node", "Node score", "Node type")
@@ -119,7 +120,7 @@ For most of network features such as the centrality, we wrapped up functions fro
 ```{r, message=FALSE, warning=FALSE}
 Nodes <- as.character(edge_set[,2])
 Net <- makeNet(edgeFile, nodeFile)
-topoFeature <-NetFeature(Net, nodeFile, edgeFile)
+topoFeature <-NetFeature(Net, nodeFile, edgeFile, SNP_pFile)
 head(topoFeature)
 ```
 
