@@ -3,8 +3,9 @@
 #'This function ...
 #'
 #'@param Net a graph object representing the input network
-#'@param Nodes a list of node names 
-#'@return a list object containing the different type network features 
+#'@param Nodes the path for the node file 
+#'@param edgeFile the path for the network file
+#'@return a matrix containing the different type network features 
 NetFeature <- function(Net, nodeFile, edgeFile){
   edgeFile <- "example_input/EdgeFile.txt"
   nodeFile <- "example_input/NodeFile.txt"
@@ -51,11 +52,6 @@ NetFeature <- function(Net, nodeFile, edgeFile){
   snpDist <- snpFeature(Net, eSNP_seeds)
   mod_vals <- ModuleFeature(Adj_List, E_adj, eSNP_seeds, V_weight, Nodes)
   
-  #names(bet_vals) <- names(snp_match)
-  #names(close_vals) <- names(snp_match)
-  #names(page_vals) <- names(snp_match)
-  #names(wd_vals) <- names(snp_match)
-  
   FeatureMatrix <- data.frame(mod_vals[eSNP_seeds], bet_vals[eSNP_seeds], 
                               close_vals[eSNP_seeds], page_vals[eSNP_seeds],
                               wd_vals[eSNP_seeds], snpDist[eSNP_seeds])
@@ -64,13 +60,13 @@ NetFeature <- function(Net, nodeFile, edgeFile){
   return(FeatureMatrix)
 }
 
-#'Compute betweenness centrality for a list of nodes
+#'Compute betweenness centrality
 #'
-#'This function ...
+#'This function computes the betweenness centrality for a list of candidate snps
 #'
 #'@param Net a graph object representing the input network
-#'@param Nodes a list of node names 
-#'@return a list object containing the different type network features 
+#'@param edge_data a dataframe specifying the edge information
+#'@return a vector of betweenness centrality values
 BetFeature <- function(Net, edge_data){
   edge_data <- subset(edge_data, edge_data$V4 == "EP")
   snps <- as.character(edge_data[,1])
@@ -84,13 +80,13 @@ BetFeature <- function(Net, edge_data){
   return(c_bet_vals)
 }
 
-#'Compute closeness centrality for a list of nodes
+#'Compute closeness centrality
 #'
-#'This function ...
+#'This function computes the closeness centrality for a list of candidate snps
 #'
 #'@param Net a graph object representing the input network
-#'@param Nodes a list of node names 
-#'@return a list object containing the different type network features 
+#'@param edge_data a dataframe specifying the edge information
+#'@return a vector of closeness centrality values
 CloseFeature <- function(Net, edge_data){
   edge_data <- subset(edge_data, edge_data$V4 == "EP")
   snps <- as.character(edge_data[,1])
@@ -104,13 +100,13 @@ CloseFeature <- function(Net, edge_data){
   return(c_close_vals)
 }
 
-#'Compute pagerank centrality for a list of nodes
+#'Compute pagerank centrality 
 #'
-#'This function ...
+#'This function computes the pagerank centrality for a list of candidate snps
 #'
 #'@param Net a graph object representing the input network
-#'@param Nodes a list of node names 
-#'@return a list object containing the different type network features 
+#'@param edge_data a dataframe specifying the edge information
+#'@return a vector of pagerank centrality values
 PageFeature <- function(Net, edge_data){
   edge_data <- subset(edge_data, edge_data$V4 == "EP")
   snps <- as.character(edge_data[,1])
@@ -124,22 +120,13 @@ PageFeature <- function(Net, edge_data){
   return(c_page_vals)
 }
 
-#'Compute module score for a list of nodes
+#'Compute TF binding disruption score
 #'
-#'This function ...
-#'
-#'@param Net a graph object representing the input network
-#'@param Nodes a list of node names 
-#'@return a list object containing the different type network features 
-#'
-
-#'Compute pagerank centrality for a list of nodes
-#'
-#'This function ...
+#'This function computes the TF binding disruption score for a list of candidate snps
 #'
 #'@param Net a graph object representing the input network
-#'@param Nodes a list of node names 
-#'@return a list object containing the different type network features
+#'@param edge_data a dataframe specifying the edge information
+#'@return a vector of TF binding disruption scores
 snpFeature <- function(Net, eSNP_seeds){
   set.seed(1)
   snp_vals <- runif(length(eSNP_seeds), 0, 1)
@@ -147,14 +134,13 @@ snpFeature <- function(Net, eSNP_seeds){
   return(snp_vals)
 }
 
-#'Compute weighted degree for a list of nodes
+#'Compute weighted degree
 #'
-#'This function ...
+#'This function computes the weighted degree for a list of candidate snps
 #'
 #'@param Net a graph object representing the input network
-#'@param Nodes a list of node names 
-#'@return a list object containing the different type network features 
-
+#'@param edge_data a dataframe specifying the edge information
+#'@return a vector of weighted degree values
 WDFeature <- function(Adj_List, edge_data){
   edge_data <- subset(edge_data, edge_data$V4 == "EP")
   snps <- as.character(edge_data[,1])
@@ -168,14 +154,13 @@ WDFeature <- function(Adj_List, edge_data){
   return(c_wd_vals)
 }
 
-#'Compute module score for a list of nodes
+#'Compute module scores
 #'
-#'This function ...
+#'This function computes the module scores for a list of candidate snps
 #'
 #'@param Net a graph object representing the input network
-#'@param Nodes a list of node names 
-#'@return a list object containing the different type network features 
-
+#'@param edge_data a dataframe specifying the edge information
+#'@return a vector of module scores
 ModuleFeature <- function(Adj_List, E_adj, eSNP_seeds, V_weight, Nodes){
   mod_sets <- list()
   for(i in 1:length(eSNP_seeds)){

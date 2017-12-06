@@ -2,18 +2,18 @@
 % Please edit documentation in R/NetworkFeatureCalculation.R
 \name{BetFeature}
 \alias{BetFeature}
-\title{Compute betweenness centrality for a list of nodes}
+\title{Compute betweenness centrality}
 \usage{
 BetFeature(Net, edge_data)
 }
 \arguments{
 \item{Net}{a graph object representing the input network}
 
-\item{Nodes}{a list of node names}
+\item{edge_data}{a dataframe specifying the edge information}
 }
 \value{
-a list object containing the different type network features
+a vector of betweenness centrality values
 }
 \description{
-This function ...
+This function computes the betweenness centrality for a list of candidate snps
 }

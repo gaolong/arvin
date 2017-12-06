@@ -2,18 +2,18 @@
 % Please edit documentation in R/NetworkFeatureCalculation.R
 \name{WDFeature}
 \alias{WDFeature}
-\title{Compute weighted degree for a list of nodes}
+\title{Compute weighted degree}
 \usage{
 WDFeature(Adj_List, edge_data)
 }
 \arguments{
-\item{Net}{a graph object representing the input network}
+\item{edge_data}{a dataframe specifying the edge information}
 
-\item{Nodes}{a list of node names}
+\item{Net}{a graph object representing the input network}
 }
 \value{
-a list object containing the different type network features
+a vector of weighted degree values
 }
 \description{
-This function ...
+This function computes the weighted degree for a list of candidate snps
 }

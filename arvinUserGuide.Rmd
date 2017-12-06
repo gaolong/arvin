@@ -14,9 +14,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## 1 Introduction
 
-Identifying causalnoncoding variants remains a daunting task. Because noncoding variants exert their effectsin the context of a gene regulatory network (GRN), we hypothesize that explicit use of disease-relevant GRNcan significantly improve the inference accuracy of noncoding risk variants. We describe Annotation of Regulatory Variants using Integrated Networks (ARVIN), a general computational framework for predictingcausal noncoding variants. For each disease, ARVIN first constructs a GRN using multi-dimensional omics data oncell/tissue-type relevant to the disease. ARVIN then uses a set of novel regulatory network-basedfeatures, combined with sequence-based features to make predictions.This user guide contains the information necessary to run ARVIN.
+Identifying causal noncoding variants remains a daunting task. Because noncoding variants exert their effects in the context of a gene regulatory network (GRN), we hypothesize that explicit use of disease-relevant GRN can significantly improve the inference accuracy of noncoding risk variants. We describe Annotation of Regulatory Variants using Integrated Networks (ARVIN), a general computational framework for predicting causal noncoding variants. For each disease, ARVIN first constructs a GRN using multi-dimensional omics data oncell/tissue-type relevant to the disease. ARVIN then uses a set of novel regulatory network-based features, combined with sequence-based features to make predictions. This user guide contains the information necessary to run ARVIN.
 
 ## 2 Network construction
+As a first step of ARVIN, an integrative GRN for each disease-relevant cell/tissue type should be constructed. In this network, there are two types of nodes which are genes and snps/variants as well as two types of edges which are gene-gene interacstions and snp-gene interactions. Gene interaction network is used as the network backbone, and then this backbone is integrated with enhancer-promoter interactions(snp-gene interactions). For each type of nodes and edges, normalized scores are computed using cell/tissue speicific information.  
+
 ### 2.1 Enhancer prediction
 ARVIN uses enhancer regions for mapping SNPs to enhancers. The data file must be in the following tab separated format:  
 #chromosome	enhancer_center	enhancer_probability  
@@ -33,10 +35,10 @@ chr2	242792001	242794001	ENST00000485966	0.792
 You can use IM-PET software for predicting enhancer-promoter interactions. For this purpose, you can download IM-PET from http://tanlab4generegulation.org/IM-PET.html . IM-PET uses enhancer predictions (computed using CSI-ANN) and gene expression data to compute enhancer-promoter interactions. You can use the output of IM-PET (which is as shown above) as input for ARVIN.
 
 ### 2.2 Obtain gene-gene interaction network
-Gene interaction network can be obtained from multiple sources including protein-protein interaction networks and functional interaction networks. 
+Gene interaction network can be obtained from multiple sources including protein-protein interaction networks and functional interaction networks such as BioGRID, BIND, HumantNet, STRING and etc.
 
 ### 2.3 Network scoring
-To make different types of scores comparable, we used a min-max normalization to normalize scores within each category.
+To make different types of scores comparable, we used a min-max normalization to normalize scores within each category. For gene interaction network, the interaction score indicating how strong the interactions between genes can be directly used from corresponding database followed by normalization. SNP-gene interaction score can be assigned with enhancer-promoter score or scores indicating the interaction strength between enhancer and target promoters. SNPs weight can be represented by TF binding disruption score computed using our script/function. Genes can be weighted using differential expression information.
 
 ### 2.4 Network input file format
 There are two types of network input files users need to prepare. One is the node attribute file and the other is network/edge attribute file. The node attribute file has 3 columns. The first column denotes snp id or gene id, and the second column denotes the score of this snp or gene. The third column specifiy if this node is a snp or gene. In the network file, there are 4 columns. The first two columns list two nodes of a given edge. The third collumn has the normalized score for this edge. The forth column specifies edge type indicating if this interaction is between snps and genes or genes. 
@@ -85,9 +87,35 @@ for(i in 1:index){
 ```
 
 ## 3 Prepare features for risk variants prediction
+To run the first module of ARVIN to process the features for the SNPs, navigate into the ARVIN directory where the executable shell script process_features.sh is stored and execute it as follows:  
+./process_features.sh \  
+             input_snps_file.bed \  
+             csi_ann_output_file.txt \  
+	 	im_pet_output_file.bed \  
+            	gwava_features_file.csv \  
+            	funseq_feautes_file.bed \  
+            	output_directory   
+              
+This script will generate three output files, to be used as input in the second step. 
+
+1. disruption_p.txt : This file contains strongest transcription factor binding disruption caused by the SNPs being analyzed in tab separated format.  
+snp	ref	alt	TF	disruption_p	disruption_q	log_disruption_q  
+rs4784227	C	T	CUX1	0.0518	0.0518	1.28567024025477  
+rs11568821	C	T	RUNX3	0.0215	0.0215	1.66756154008439  
+      
+2. snp_target_gene.txt: This file lists the SNP-gene interactions in tab separated format.        
+ snp_id	gene_symbol	entrez_gene_id	interaction_score  
+rs200820567	ADAM7	8756	0.00450758418  
+rs339331	MIR624	693209	0.058555728  
+rs1542725	C1RL	51279	0.258880096  
+
+3. features_gwava_funseq.csv: This file contains the GWAVA and FunSeq features for the input SNPs in comma separated format.  
+snp_id,chr,end,start,ATF3,BATF,BCL11A,BCL3,BCLAF1,...  
+ rs10757278,chr9,22124477,22124476,0.0,0.0,0.0,0.0,...  
+rs10811656,chr9,22124472,22124471,0.0,0.0,0.0,0.0,...
 
 ### 3.1 Network-based features
-For most of network features such as the centrality, we wrapped up functions from "igraph" package to calculate their values. We also implemented our module identification algorithm to find modules containing snps we are intereted in. To calculate all network based features, users can simply call NetFeature(). SNPs in the same enhancer usually have same topological features. However, we can further distinguish them using their TF motif breaking scores.
+For most of network features such as the centrality, we wrapped up functions from "igraph" package to calculate their values. We also implemented our module identification algorithm to find modules containing snps we are intereted in. To calculate all network based features, users can simply call NetFeature(). SNPs in the same enhancer usually have similar topological features. However, we can further distinguish them using their TF motif breaking scores.
 ```{r, message=FALSE, warning=FALSE}
 Nodes <- as.character(edge_set[,2])
 Net <- makeNet(edgeFile, nodeFile)
@@ -142,6 +170,7 @@ gwava[1:8,168:174]
 ```
 
 ### 3.3 FunSeq features
+
 ARVIN also uses sequence features generated by FunSeq. FunSeq can also be run online or binaries can be downloaded to run locally. 
 For running FunSeq online, navigate to http://funseq.gersteinlab.org/analysis and upload the list of SNPs that you want to analyze. In the web page, it is noted that the input SNPs can be uploaded in bed format, SNP coordinates followed by reference and alternate alleles; but we discovered that it fails to process bed input. In order to have it run, you the first two seperators need to be two spaces and last two separators need to be tabs, as follows:  
 chr16··4526757··4526758	G	A  
@@ -169,32 +198,7 @@ RFmodel <- trainMod(features)#train a random forest classifier
 ```
 
 ### 4.2 Predict causal disease variants
-To run the first module of ARVIN to process the features for the SNPs, navigate into the ARVIN directory where the executable shell script process_features.sh is stored and execute it as follows:  
-./process_features.sh \  
-             input_snps_file.bed \  
-             csi_ann_output_file.txt \  
-	 	im_pet_output_file.bed \  
-            	gwava_features_file.csv \  
-            	funseq_feautes_file.bed \  
-            	output_directory   
-              
-This script will generate three output files, to be used as input in the second step. 
-
-1. disruption_p.txt : This file contains strongest transcription factor binding disruption caused by the SNPs being analyzed in tab separated format.  
-snp	ref	alt	TF	disruption_p	disruption_q	log_disruption_q  
-rs4784227	C	T	CUX1	0.0518	0.0518	1.28567024025477  
-rs11568821	C	T	RUNX3	0.0215	0.0215	1.66756154008439  
-      
-2. snp_target_gene.txt: This file lists the SNP-gene interactions in tab separated format.        
- snp_id	gene_symbol	entrez_gene_id	interaction_score  
-rs200820567	ADAM7	8756	0.00450758418  
-rs339331	MIR624	693209	0.058555728  
-rs1542725	C1RL	51279	0.258880096  
-
-3. features_gwava_funseq.csv: This file contains the GWAVA and FunSeq features for the input SNPs in comma separated format.  
-snp_id,chr,end,start,ATF3,BATF,BCL11A,BCL3,BCLAF1,...  
- rs10757278,chr9,22124477,22124476,0.0,0.0,0.0,0.0,...  
-rs10811656,chr9,22124472,22124471,0.0,0.0,0.0,0.0,...  
+By providing the trained random forest model with feature values, users can compute the prediction score for a list of snps or candidate variants for being risk snps or non-risk snps. 
 
 ```{r, message=FALSE, warning=FALSE}
 prob <- predMod(features[,-dim(features)[2]], RFmodel)#estimate the probablity score using trained model after removing the label/group informatin

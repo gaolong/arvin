@@ -2,18 +2,18 @@
 % Please edit documentation in R/NetworkFeatureCalculation.R
 \name{ModuleFeature}
 \alias{ModuleFeature}
-\title{Compute module score for a list of nodes}
+\title{Compute module scores}
 \usage{
 ModuleFeature(Adj_List, E_adj, eSNP_seeds, V_weight, Nodes)
 }
 \arguments{
-\item{Nodes}{a list of node names}
-
 \item{Net}{a graph object representing the input network}
+
+\item{edge_data}{a dataframe specifying the edge information}
 }
 \value{
-a list object containing the different type network features
+a vector of module scores
 }
 \description{
-This function ...
+This function computes the module scores for a list of candidate snps
 }

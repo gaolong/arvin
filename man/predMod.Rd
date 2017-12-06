@@ -12,8 +12,8 @@ predMod(FeatureMatrix, RFmodel)
 \item{RFmodel}{a random forest classifier}
 }
 \value{
-a random forest classifier
+prediction score matrix
 }
 \description{
-This function ...
+This function predicts the probablity score using a trained random forest classifier
 }

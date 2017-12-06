@@ -2,18 +2,18 @@
 % Please edit documentation in R/NetworkFeatureCalculation.R
 \name{PageFeature}
 \alias{PageFeature}
-\title{Compute pagerank centrality for a list of nodes}
+\title{Compute pagerank centrality}
 \usage{
 PageFeature(Net, edge_data)
 }
 \arguments{
 \item{Net}{a graph object representing the input network}
 
-\item{Nodes}{a list of node names}
+\item{edge_data}{a dataframe specifying the edge information}
 }
 \value{
-a list object containing the different type network features
+a vector of pagerank centrality values
 }
 \description{
-This function ...
+This function computes the pagerank centrality for a list of candidate snps
 }

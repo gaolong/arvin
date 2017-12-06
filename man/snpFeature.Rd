@@ -2,28 +2,18 @@
 % Please edit documentation in R/NetworkFeatureCalculation.R
 \name{snpFeature}
 \alias{snpFeature}
-\title{Compute module score for a list of nodes}
+\title{Compute TF binding disruption score}
 \usage{
 snpFeature(Net, eSNP_seeds)
 }
 \arguments{
 \item{Net}{a graph object representing the input network}
 
-\item{Nodes}{a list of node names}
-
-\item{Net}{a graph object representing the input network}
-
-\item{Nodes}{a list of node names}
+\item{edge_data}{a dataframe specifying the edge information}
 }
 \value{
-a list object containing the different type network features 
-
-Compute pagerank centrality for a list of nodes
-
-This function ...
-
-a list object containing the different type network features
+a vector of TF binding disruption scores
 }
 \description{
-This function ...
+This function computes the TF binding disruption score for a list of candidate snps
 }

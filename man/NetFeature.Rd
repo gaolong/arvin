@@ -9,10 +9,12 @@ NetFeature(Net, nodeFile, edgeFile)
 \arguments{
 \item{Net}{a graph object representing the input network}
 
-\item{Nodes}{a list of node names}
+\item{edgeFile}{the path for the network file}
+
+\item{Nodes}{the path for the node file}
 }
 \value{
-a list object containing the different type network features
+a matrix containing the different type network features
 }
 \description{
 This function ...

@@ -35,9 +35,8 @@ library("igraph")#igraph contains basic graph operations and some simple graph a
 #'@param V_weight a numeric vector of node weight
 #'@param Adj_List a list object representing the adjacency list of the input network
 #'@param E_adj the adjacency matrix
-#'@param rank_list the 
-#'@return a list object containing modules and related stattistics
-module_search_ind <- function(V_weight, Adj_List, ind_seed, E_adj, rank_list){
+#'@return a list object containing modules and related statistics
+module_search_ind <- function(V_weight, Adj_List, ind_seed, E_adj){
   ptm_1 <- proc.time()
   cur_seed <- ind_seed#get the seed name
   #print("current seed:")

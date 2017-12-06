@@ -12,13 +12,13 @@ library("igraph")#igraph contains basic graph operations and some simple graph a
 
 #'Generate a graph object for input network 
 #'
-#'This function ...
+#'This function reads a node file and edge file and generates a network object for downstream analysis.
 #'
-#'@param Interaction_file file path for edges in input network
-#'@param Node_file file path for nodes in input network 
+#'@param edge_file file path for edges in input network
+#'@param node_file file path for nodes in input network 
 #'@param rand boolean value indicating if randomized network will be generated
 #'@param seed seed for network randomization
-#'@return a graph object
+#'@return a graph/network object(igraph package)
 makeNet <- function(edgeFile, nodeFile, rand=FALSE, seed=1){
   #read edge and node information from corresponding files
   edge_set <- read.table(edgeFile, sep="\t")

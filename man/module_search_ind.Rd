@@ -4,7 +4,7 @@
 \alias{module_search_ind}
 \title{Search modules from a list of seeds/nodes}
 \usage{
-module_search_ind(V_weight, Adj_List, ind_seed, E_adj, rank_list)
+module_search_ind(V_weight, Adj_List, ind_seed, E_adj)
 }
 \arguments{
 \item{V_weight}{a numeric vector of node weight}
@@ -13,12 +13,10 @@ module_search_ind(V_weight, Adj_List, ind_seed, E_adj, rank_list)
 
 \item{E_adj}{the adjacency matrix}
 
-\item{rank_list}{the}
-
 \item{Net}{a graph object representing the input network}
 }
 \value{
-a list object containing modules and related stattistics
+a list object containing modules and related statistics
 }
 \description{
 This function ...

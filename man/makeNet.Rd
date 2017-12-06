@@ -11,13 +11,13 @@ makeNet(edgeFile, nodeFile, rand = FALSE, seed = 1)
 
 \item{seed}{seed for network randomization}
 
-\item{Interaction_file}{file path for edges in input network}
+\item{edge_file}{file path for edges in input network}
 
-\item{Node_file}{file path for nodes in input network}
+\item{node_file}{file path for nodes in input network}
 }
 \value{
-a graph object
+a graph/network object(igraph package)
 }
 \description{
-This function ...
+This function reads a node file and edge file and generates a network object for downstream analysis.
 }

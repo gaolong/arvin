@@ -7,15 +7,11 @@
 trainMod(FeatureMatrix)
 }
 \arguments{
-\item{FeatureMatrix}{a matrix of feature values}
-
-\item{pos}{a vector specifying the positive set of elements}
-
-\item{neg}{a vector specifying the control set of elements}
+\item{FeatureMatrix}{a matrix of feature values plus the last column indicating positive or negative snps}
 }
 \value{
 a random forest classifier
 }
 \description{
-This function ...
+This function trains a random forest classifier using different types of features
 }

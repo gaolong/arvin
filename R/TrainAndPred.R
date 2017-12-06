@@ -4,11 +4,9 @@ library("caret")
 
 #'Train a classifier 
 #'
-#'This function ...
+#'This function trains a random forest classifier using different types of features
 #'
-#'@param FeatureMatrix a matrix of feature values
-#'@param pos a vector specifying the positive set of elements
-#'@param neg a vector specifying the control set of elements
+#'@param FeatureMatrix a matrix of feature values plus the last column indicating positive or negative snps
 #'@return a random forest classifier
 trainMod <- function(FeatureMatrix){
   x <- as.matrix(FeatureMatrix[,1:(dim(FeatureMatrix)[2] - 1)])
@@ -21,11 +19,11 @@ trainMod <- function(FeatureMatrix){
 
 #'Compute prediction score 
 #'
-#'This function ...
+#'This function predicts the probablity score using a trained random forest classifier
 #'
 #'@param FeatureMatrix a matrix of feature values
 #'@param RFmodel a random forest classifier
-#'@return a random forest classifier
+#'@return prediction score matrix
 predMod <- function(FeatureMatrix, RFmodel){
   xtest <- as.matrix(FeatureMatrix)
   pred <- predict(RFmodel, xtest, probability=TRUE)
