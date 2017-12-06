@@ -4,12 +4,12 @@
 \alias{snpFeature}
 \title{Compute TF binding disruption score}
 \usage{
-snpFeature(Net, eSNP_seeds)
+snpFeature(SNP_file, eSNP_seeds)
 }
 \arguments{
-\item{Net}{a graph object representing the input network}
+\item{SNP_file}{the path of the file with SNP TF disruption score information}
 
-\item{edge_data}{a dataframe specifying the edge information}
+\item{eSNP_seeds}{a vector of candidate eSNPs}
 }
 \value{
 a vector of TF binding disruption scores

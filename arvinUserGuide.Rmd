@@ -1,7 +1,7 @@
 ---
 title: "ARVIN : Identifying Risk Noncoding Variants Using Disease-relevant Gene Regulatory Networks"
 author: "Long Gao, Yasin Uzun, Kai Tan"
-date: "October 31, 2017"
+date: "Dec. 1, 2017"
 output: 
   pdf_document:
     toc: true
@@ -14,7 +14,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## 1 Introduction
 
-Identifying causal noncoding variants remains a daunting task. Because noncoding variants exert their effects in the context of a gene regulatory network (GRN), we hypothesize that explicit use of disease-relevant GRN can significantly improve the inference accuracy of noncoding risk variants. We describe Annotation of Regulatory Variants using Integrated Networks (ARVIN), a general computational framework for predicting causal noncoding variants. For each disease, ARVIN first constructs a GRN using multi-dimensional omics data oncell/tissue-type relevant to the disease. ARVIN then uses a set of novel regulatory network-based features, combined with sequence-based features to make predictions. This user guide contains the information necessary to run ARVIN.
+Identifying causal noncoding variants remains a daunting task. Because noncoding variants exert their effects in the context of a gene regulatory network (GRN), we hypothesize that explicit use of disease-relevant GRN can significantly improve the inference accuracy of noncoding risk variants. We describe Annotation of Regulatory Variants using Integrated Networks (ARVIN), a general computational framework for predicting causal noncoding variants. For each disease, ARVIN first constructs a GRN using multi-dimensional omics data oncell/tissue-type relevant to the disease. ARVIN then uses a set of novel regulatory network-based features, combined with sequence-based features to make predictions. 
+
+This user guide contains the information necessary to run ARVIN. Please make sure following dependency packages also installed including "caret", "randomForest", and "igraph".
 
 ## 2 Network construction
 As a first step of ARVIN, an integrative GRN for each disease-relevant cell/tissue type should be constructed. In this network, there are two types of nodes which are genes and snps/variants as well as two types of edges which are gene-gene interacstions and snp-gene interactions. Gene interaction network is used as the network backbone, and then this backbone is integrated with enhancer-promoter interactions(snp-gene interactions). For each type of nodes and edges, normalized scores are computed using cell/tissue speicific information.  
@@ -47,12 +49,12 @@ There are two types of network input files users need to prepare. One is the nod
 edgeFile <- "example_input/EdgeFile.txt"
 nodeFile <- "example_input/NodeFile.txt"
 SNP_pFile <- "example_input/snp_pval.txt"
-edge_set <- read.table(edgeFile, sep="\t")
-node_set   <- read.table(nodeFile, sep="\t")
-colnames(node_set) <- c("Node", "Node score", "Node type")
-colnames(edge_set) <- c("First node", "Second node", "Edge score", "Edge type")
-edge_set[98:103,]
-node_set[98:103,]
+edge_data <- read.table(edgeFile, sep="\t")
+node_data   <- read.table(nodeFile, sep="\t")
+colnames(node_data) <- c("Node", "Node score", "Node type")
+colnames(edge_data) <- c("First node", "Second node", "Edge score", "Edge type")
+edge_data[98:103,]
+node_data[98:103,]
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -118,7 +120,7 @@ rs10811656,chr9,22124472,22124471,0.0,0.0,0.0,0.0,...
 ### 3.1 Network-based features
 For most of network features such as the centrality, we wrapped up functions from "igraph" package to calculate their values. We also implemented our module identification algorithm to find modules containing snps we are intereted in. To calculate all network based features, users can simply call NetFeature(). SNPs in the same enhancer usually have similar topological features. However, we can further distinguish them using their TF motif breaking scores.
 ```{r, message=FALSE, warning=FALSE}
-Nodes <- as.character(edge_set[,2])
+Nodes <- as.character(edge_data[,2])
 Net <- makeNet(edgeFile, nodeFile)
 topoFeature <-NetFeature(Net, nodeFile, edgeFile, SNP_pFile)
 head(topoFeature)

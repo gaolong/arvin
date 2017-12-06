@@ -68,6 +68,7 @@ NetFeature <- function(Net, nodeFile, edgeFile, snpFile){
 #'@param edge_data a dataframe specifying the edge information
 #'@return a vector of betweenness centrality values
 BetFeature <- function(Net, edge_data){
+  nm <- length(V(Net))
   edge_data <- subset(edge_data, edge_data$V4 == "EP")
   snps <- as.character(edge_data[,1])
   Nodes <- as.character(edge_data[,2])
@@ -77,7 +78,7 @@ BetFeature <- function(Net, edge_data){
   names(unhit_val) <- unhit
   c_bet_vals <- c(bet_vals, unhit_val)
   names(c_bet_vals) <- edge_data[,1]
-  return(c_bet_vals)
+  return(c_bet_vals/nm)
 }
 
 #'Compute closeness centrality
@@ -88,6 +89,7 @@ BetFeature <- function(Net, edge_data){
 #'@param edge_data a dataframe specifying the edge information
 #'@return a vector of closeness centrality values
 CloseFeature <- function(Net, edge_data){
+  nm <- length(V(Net))
   edge_data <- subset(edge_data, edge_data$V4 == "EP")
   snps <- as.character(edge_data[,1])
   Nodes <- as.character(edge_data[,2])
@@ -97,7 +99,7 @@ CloseFeature <- function(Net, edge_data){
   names(unhit_val) <- unhit
   c_close_vals <- c(close_vals, unhit_val)
   names(c_close_vals) <- edge_data[,1]
-  return(c_close_vals)
+  return(c_close_vals*nm)
 }
 
 #'Compute pagerank centrality 
@@ -108,6 +110,7 @@ CloseFeature <- function(Net, edge_data){
 #'@param edge_data a dataframe specifying the edge information
 #'@return a vector of pagerank centrality values
 PageFeature <- function(Net, edge_data){
+  nm <- length(V(Net))
   edge_data <- subset(edge_data, edge_data$V4 == "EP")
   snps <- as.character(edge_data[,1])
   Nodes <- as.character(edge_data[,2])
@@ -117,7 +120,7 @@ PageFeature <- function(Net, edge_data){
   names(unhit_val) <- unhit
   c_page_vals <- c(page_vals, unhit_val)
   names(c_page_vals) <- edge_data[,1]
-  return(c_page_vals)
+  return(c_page_vals*nm)
 }
 
 #'Compute TF binding disruption score

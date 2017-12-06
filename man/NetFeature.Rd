@@ -4,7 +4,7 @@
 \alias{NetFeature}
 \title{Compute network-based features needed for risk variant prediction}
 \usage{
-NetFeature(Net, nodeFile, edgeFile)
+NetFeature(Net, nodeFile, edgeFile, snpFile)
 }
 \arguments{
 \item{Net}{a graph object representing the input network}
