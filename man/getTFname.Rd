@@ -2,17 +2,13 @@
 % Please edit documentation in R/TFBindingDisruption.R
 \name{getTFname}
 \alias{getTFname}
-\title{Calculate transcription factor disruption p values for the SNPs}
+\title{Extract TF name from the file name which is separated from motif name with @: AHR@M6139_1.02}
 \usage{
 getTFname(filename)
 }
 \arguments{
-\item{score_changes_file}{file name containing the score changes between reference and alternate sequences around the input SNPs}
-
-\item{bg_score_changes_dir}{directory cotaining the background score changes between the reference and alternate sequences aroung the 1000 Genome SNPs}
-
-\item{output_filename}{the path to the file name to write the output}
+\item{filename}{file name containing the score changes between reference and alternate sequences around the input SNPs}
 }
 \description{
-Calculate transcription factor disruption p values for the SNPs
+Extract TF name from the file name which is separated from motif name with @: AHR@M6139_1.02
 }
