@@ -18,6 +18,8 @@ Identifying causal noncoding variants remains a daunting task. Because noncoding
 
 This user guide contains the information necessary to run ARVIN. Please make sure following dependency packages also installed including "caret", "randomForest", and "igraph".
 
+ARVIN uses genome annotation and motif data. You need to download http://tanlab4generegulation.org/arvin_annotation_data.tar.gz to run ARVIN.
+
 ## 2 Network construction
 As a first step of ARVIN, an integrative GRN for each disease-relevant cell/tissue type should be constructed. In this network, there are two types of nodes which are genes and snps/variants as well as two types of edges which are gene-gene interacstions and snp-gene interactions. Gene interaction network is used as the network backbone, and then this backbone is integrated with enhancer-promoter interactions(snp-gene interactions). For each type of nodes and edges, normalized scores are computed using cell/tissue speicific information.  
 
