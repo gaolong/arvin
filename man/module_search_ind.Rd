@@ -19,5 +19,5 @@ module_search_ind(V_weight, Adj_List, ind_seed, E_adj)
 a list object containing modules and related statistics
 }
 \description{
-This function ...
+This function searches attached modules based on the list of seeds
 }

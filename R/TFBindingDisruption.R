@@ -3,10 +3,9 @@
 #'@param score_changes_file file name containing the score changes between reference and alternate sequences around the input SNPs
 #'@param bg_score_changes_dir directory cotaining the background score changes between the reference and alternate sequences aroung the 1000 Genome SNPs
 #'@param output_filename the path to the file name to write the output
-
-
-#Extract TF name from the file name which is separated from motif name with @: AHR@M6139_1.02
+#'@export
 getTFname <- function(filename){
+  #Extract TF name from the file name which is separated from motif name with @: AHR@M6139_1.02
   input <- as.character(filename)
   tfname <- strsplit(input, "@")[[1]][1]
   return(tfname)

@@ -29,13 +29,14 @@ library("igraph")#igraph contains basic graph operations and some simple graph a
 
 #'Search modules from a list of seeds/nodes
 #'
-#'This function ...
+#'This function searches attached modules based on the list of seeds
 #'
 #'@param Net a graph object representing the input network
 #'@param V_weight a numeric vector of node weight
 #'@param Adj_List a list object representing the adjacency list of the input network
 #'@param E_adj the adjacency matrix
 #'@return a list object containing modules and related statistics
+#'@export
 module_search_ind <- function(V_weight, Adj_List, ind_seed, E_adj){
   ptm_1 <- proc.time()
   cur_seed <- ind_seed#get the seed name

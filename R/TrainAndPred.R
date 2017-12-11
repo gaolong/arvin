@@ -8,6 +8,7 @@ library("caret")
 #'
 #'@param FeatureMatrix a matrix of feature values plus the last column indicating positive or negative snps
 #'@return a random forest classifier
+#'@export
 trainMod <- function(FeatureMatrix){
   x <- as.matrix(FeatureMatrix[,1:(dim(FeatureMatrix)[2] - 1)])
   y <- as.factor(as.character(FeatureMatrix[,dim(FeatureMatrix)[2]]))#last column indicates their labels
@@ -24,6 +25,7 @@ trainMod <- function(FeatureMatrix){
 #'@param FeatureMatrix a matrix of feature values
 #'@param RFmodel a random forest classifier
 #'@return prediction score matrix
+#'@export
 predMod <- function(FeatureMatrix, RFmodel){
   xtest <- as.matrix(FeatureMatrix)
   pred <- predict(RFmodel, xtest, probability=TRUE)

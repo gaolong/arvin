@@ -19,6 +19,7 @@ library("igraph")#igraph contains basic graph operations and some simple graph a
 #'@param rand boolean value indicating if randomized network will be generated
 #'@param seed seed for network randomization
 #'@return a graph/network object(igraph package)
+#'@export
 makeNet <- function(edgeFile, nodeFile, rand=FALSE, seed=1){
   #read edge and node information from corresponding files
   edge_set <- read.table(edgeFile, sep="\t")

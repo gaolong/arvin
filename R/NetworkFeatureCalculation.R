@@ -6,6 +6,7 @@
 #'@param Nodes the path for the node file 
 #'@param edgeFile the path for the network file
 #'@return a matrix containing the different type network features 
+#'@export
 NetFeature <- function(Net, nodeFile, edgeFile, snpFile){
   #edgeFile <- "example_input/EdgeFile.txt"
   #nodeFile <- "example_input/NodeFile.txt"
@@ -67,6 +68,7 @@ NetFeature <- function(Net, nodeFile, edgeFile, snpFile){
 #'@param Net a graph object representing the input network
 #'@param edge_data a dataframe specifying the edge information
 #'@return a vector of betweenness centrality values
+#'@export
 BetFeature <- function(Net, edge_data){
   nm <- length(V(Net))
   edge_data <- subset(edge_data, edge_data$V4 == "EP")
@@ -88,6 +90,7 @@ BetFeature <- function(Net, edge_data){
 #'@param Net a graph object representing the input network
 #'@param edge_data a dataframe specifying the edge information
 #'@return a vector of closeness centrality values
+#'@export
 CloseFeature <- function(Net, edge_data){
   nm <- length(V(Net))
   edge_data <- subset(edge_data, edge_data$V4 == "EP")
@@ -109,6 +112,7 @@ CloseFeature <- function(Net, edge_data){
 #'@param Net a graph object representing the input network
 #'@param edge_data a dataframe specifying the edge information
 #'@return a vector of pagerank centrality values
+#'@export
 PageFeature <- function(Net, edge_data){
   nm <- length(V(Net))
   edge_data <- subset(edge_data, edge_data$V4 == "EP")
@@ -130,6 +134,7 @@ PageFeature <- function(Net, edge_data){
 #'@param SNP_file the path of the file with SNP TF disruption score information
 #'@param eSNP_seeds a vector of candidate eSNPs
 #'@return a vector of TF binding disruption scores
+#'@export
 snpFeature <- function(SNP_file, eSNP_seeds){
   snp_tmp <- read.table(SNP_file)
   snp_vals <- snp_tmp[,2]
@@ -144,6 +149,7 @@ snpFeature <- function(SNP_file, eSNP_seeds){
 #'@param Net a graph object representing the input network
 #'@param edge_data a dataframe specifying the edge information
 #'@return a vector of weighted degree values
+#'@export
 WDFeature <- function(Adj_List, edge_data){
   edge_data <- subset(edge_data, edge_data$V4 == "EP")
   snps <- as.character(edge_data[,1])
@@ -164,6 +170,7 @@ WDFeature <- function(Adj_List, edge_data){
 #'@param Net a graph object representing the input network
 #'@param edge_data a dataframe specifying the edge information
 #'@return a vector of module scores
+#'@export
 ModuleFeature <- function(Adj_List, E_adj, eSNP_seeds, V_weight, Nodes){
   mod_sets <- list()
   for(i in 1:length(eSNP_seeds)){
