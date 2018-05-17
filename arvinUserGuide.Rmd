@@ -23,15 +23,7 @@ ARVIN uses genome annotation and motif data. You need to download http://tanlab4
 ## 2 Network construction
 As a first step of ARVIN, an integrative GRN for each disease-relevant cell/tissue type should be constructed. In this network, there are two types of nodes which are genes and snps/variants as well as two types of edges which are gene-gene interacstions and snp-gene interactions. Gene interaction network is used as the network backbone, and then this backbone is integrated with enhancer-promoter interactions(snp-gene interactions). For each type of nodes and edges, normalized scores are computed using cell/tissue speicific information.  
 
-### 2.1 Enhancer prediction
-ARVIN uses enhancer regions for mapping SNPs to enhancers. The data file must be in the following tab separated format:  
-#chromosome	enhancer_center	enhancer_probability  
-chr6	138231000	0.86  
-chr1	160807000	0.79  
-chr1	160808600	0.88  
-You can use CSI-ANN software for predicting the enhancers. For this purpose, you can download CSI-ANN from our lab web page http://tanlab4generegulation.org/CSIANNWebpage.html . CSI-ANN uses histone modification data as input to predict enhancer regions in genome-wide. You can use the output of CSI-ANN (which is as shown above) as input for ARVIN.
-
-### 2.2 Enhancer-promoter interaction prediction
+### 2.1 Enhancer-promoter interaction
 ARVIN uses enhancer-promoter interaction for mapping SNPS to genes via enhancers. The enhancer-promoter interaction data must be in tab separated format as follows:  
 #Chr	Start	End	Target	Score  
 chr9	22124001	22126001	ENST00000452276	0.93  
@@ -48,9 +40,9 @@ To make different types of scores comparable, we used a min-max normalization to
 There are two types of network input files users need to prepare. One is the node attribute file and the other is network/edge attribute file. The node attribute file has 3 columns. The first column denotes snp id or gene id, and the second column denotes the score of this snp or gene. The third column specifiy if this node is a snp or gene. In the network file, there are 4 columns. The first two columns list two nodes of a given edge. The third collumn has the normalized score for this edge. The forth column specifies edge type indicating if this interaction is between snps and genes or genes. 
 
 ```{r, message=FALSE, warning=FALSE}
-edgeFile <- "example_input/EdgeFile.txt"
-nodeFile <- "example_input/NodeFile.txt"
-SNP_pFile <- "example_input/snp_pval.txt"
+edgeFile <- "example_1/EdgeFile.txt"
+nodeFile <- "example_1/NodeFile.txt"
+SNP_pFile <- "example_1/snp_pval.txt"
 edge_data <- read.table(edgeFile, sep="\t")
 node_data   <- read.table(nodeFile, sep="\t")
 colnames(node_data) <- c("Node", "Node score", "Node type")
@@ -92,32 +84,6 @@ for(i in 1:index){
 ```
 
 ## 3 Prepare features for risk variants prediction
-To run the first module of ARVIN to process the features for the SNPs, navigate into the ARVIN directory where the executable shell script process_features.sh is stored and execute it as follows:  
-./process_features.sh \  
-             input_snps_file.bed \  
-             csi_ann_output_file.txt \  
-	 	im_pet_output_file.bed \  
-            	gwava_features_file.csv \  
-            	funseq_feautes_file.bed \  
-            	output_directory   
-              
-This script will generate three output files, to be used as input in the second step. 
-
-1. disruption_p.txt : This file contains strongest transcription factor binding disruption caused by the SNPs being analyzed in tab separated format.  
-snp	ref	alt	TF	disruption_p	disruption_q	log_disruption_q  
-rs4784227	C	T	CUX1	0.0518	0.0518	1.28567024025477  
-rs11568821	C	T	RUNX3	0.0215	0.0215	1.66756154008439  
-      
-2. snp_target_gene.txt: This file lists the SNP-gene interactions in tab separated format.        
- snp_id	gene_symbol	entrez_gene_id	interaction_score  
-rs200820567	ADAM7	8756	0.00450758418  
-rs339331	MIR624	693209	0.058555728  
-rs1542725	C1RL	51279	0.258880096  
-
-3. features_gwava_funseq.csv: This file contains the GWAVA and FunSeq features for the input SNPs in comma separated format.  
-snp_id,chr,end,start,ATF3,BATF,BCL11A,BCL3,BCLAF1,...  
- rs10757278,chr9,22124477,22124476,0.0,0.0,0.0,0.0,...  
-rs10811656,chr9,22124472,22124471,0.0,0.0,0.0,0.0,...
 
 ### 3.1 Network-based features
 For most of network features such as the centrality, we wrapped up functions from "igraph" package to calculate their values. We also implemented our module identification algorithm to find modules containing snps we are intereted in. To calculate all network based features, users can simply call NetFeature(). SNPs in the same enhancer usually have similar topological features. However, we can further distinguish them using their TF motif breaking scores.
