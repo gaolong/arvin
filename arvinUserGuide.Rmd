@@ -136,7 +136,7 @@ For running GWAVA online navigate to  https://www.sanger.ac.uk/sanger/StatGen_Gw
 If you prefer to run it locally, you need to dowload the source code from ftp://ftp.sanger.ac.uk/pub/resources/software/gwava/v1.0/src/  and annotation data from ftp://ftp.sanger.ac.uk/pub/resources/software/gwava/v1.0/source_data/ . Then you can run it local by running gwava_annotate.py and generate the features, which will be input for ARVIN.
 
 ```{r, message=F, warning=FALSE}
-gwava <- read.table("example_input/gwava_matrix.txt", header=T, sep="\t")
+gwava <- read.table("example_1/gwava_matrix.txt", header=T, sep="\t")
 gwava[1:8,168:174]
 ```
 
@@ -152,7 +152,7 @@ Then, FunSeq will generate the features by selecting “bed” as the output for
 If you prefer to run FunSeq locally, you can download FunSeq binaries from http://funseq.gersteinlab.org/static/funseq-0.1.tar.gz and extract it into your local. You will also need to download FunSeq annotation data from http://funseq.gersteinlab.org/static/data/data.tar.gz , extract it into directory that you saved the binaries. Then you can run FunSeq binary file by setting the output format to bed.  
 
 ```{r, message=F, warning=FALSE}
-funseq <- read.table("example_input/funseq_matrix.txt", header=T, sep="\t")
+funseq <- read.table("example_1/funseq_matrix.txt", header=T, sep="\t")
 head(funseq)
 ```
 
@@ -163,7 +163,7 @@ head(funseq)
 Combining network, GWAVA features and FunSeq features, a random forest model can be trained to predict risk SNPs.
 ```{r, message=FALSE, warning=FALSE}
 #combine 3 types of features
-group <- as.character(read.table("example_input/snp_labels.txt")[,1])
+group <- as.character(read.table("example_1/snp_labels.txt")[,1])
 features <- data.frame(topoFeature, gwava, funseq, group)
 RFmodel <- trainMod(features)#train a random forest classifier
 ```
